@@ -1,0 +1,23 @@
+{
+  "name": "湘农汇",
+  "description": "湘农汇 · 产地直采生鲜农产品小程序",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wx00025c1841c755b4",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "minified": true,
+      "postcss": true
+    },
+    "usingComponents": true,
+    "optimization": {
+      "subPackages": true
+    },
+    "lazyCodeLoading": "requiredComponents"
+  },
+  "vueVersion": "3",
+  "fallbackLocale": "zh-Hans"
+}

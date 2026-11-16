@@ -1,0 +1,286 @@
+﻿{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^nav-bar$": "@/components/nav-bar.vue",
+      "^prod-img$": "@/components/prod-img.vue",
+      "^price-tag$": "@/components/price-tag.vue",
+      "^empty-box$": "@/components/empty-box.vue",
+      "^product-card$": "@/components/product-card.vue",
+      "^icon-svg$": "@/components/icon-svg.vue",
+      "^tab-bar$": "@/components/tab-bar.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/splash/splash",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F2FBF6"
+      }
+    },
+    {
+      "path": "pages/onboarding/onboarding",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    {
+      "path": "pages/tabbar/home/home",
+      "style": {
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/tabbar/category/category",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/tabbar/cart/cart",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/tabbar/community/community",
+      "style": {
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/tabbar/profile/profile",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/search/search",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/product/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/product/reviews",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/order/confirm",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/order/pay-result",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/order/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/order/logistics",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/address/list",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/address/edit",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/home",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/calendar",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/record",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/post/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    {
+      "path": "pages/post/publish",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/live/live",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#0C1310"
+      }
+    },
+    {
+      "path": "pages/message/message",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/message/chat",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/favorite",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/follow",
+      "style": {
+        "navigationBarTitleText": "我的关注"
+      }
+    },
+    {
+      "path": "pages/profile/coupon",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/adopt",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/plot",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/adopt-confirm",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/adopt-result",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/my",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/delivery",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "湘农汇",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F4F8F5",
+    "backgroundColorTop": "#F4F8F5",
+    "backgroundColorBottom": "#F4F8F5"
+  }
+}
