@@ -517,4 +517,4 @@ onShow(() => {
   color: #9aa7a1;
   margin-top: 12rpx;
 }
-
+</style>
