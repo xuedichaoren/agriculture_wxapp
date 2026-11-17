@@ -267,7 +267,23 @@ function back() {
 }
 
 function share() {
-  uni.showActionSheet({ itemList: ['分享给好友', '生成地块名片', '复制链接'] })
+  uni.showActionSheet({
+    itemList: ['复制地块信息', '去认养大厅', '联系农场'],
+    success: (r) => {
+      const p = plot.value
+      if (r.tapIndex === 0) {
+        const farmName = p.farm && p.farm.name ? p.farm.name : '湘农汇农场'
+        uni.setClipboardData({
+          data: p.code + ' 号地 · ' + p.area + '㎡ · ' + farmName + ' · ￥' + p.price + ' 起',
+          success: () => toast('地块信息已复制')
+        })
+      } else if (r.tapIndex === 1) {
+        uni.navigateTo({ url: '/pages/farm/adopt' })
+      } else {
+        uni.navigateTo({ url: '/pages/message/chat?id=' + (p.farmId || 'f1') })
+      }
+    }
+  })
 }
 
 function submit() {

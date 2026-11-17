@@ -3,10 +3,17 @@
     <view class="tabbar">
       <view v-for="t in tabs" :key="t.key" class="tab-item" @tap="go(t)">
         <view class="ico-box">
-          <icon-svg :name="t.icon" :size="46" :color="active === t.key ? '#0FC97A' : '#9AA7A1'" :stroke="active === t.key ? 2 : 1.7" />
+          <icon-svg
+            :name="t.icon"
+            :size="46"
+            :color="active === t.key ? brand : '#9AA7A1'"
+            :stroke="active === t.key ? 2 : 1.7"
+          />
           <view v-if="t.key === 'cart' && cartCount" class="badge">{{ cartCount > 99 ? '99+' : cartCount }}</view>
         </view>
-        <text class="label" :class="{ on: active === t.key }">{{ t.name }}</text>
+        <text class="label" :class="{ on: active === t.key }" :style="active === t.key ? { color: brand } : {}">
+          {{ t.name }}
+        </text>
       </view>
     </view>
     <view class="safe-bottom" />
@@ -16,20 +23,16 @@
 <script setup>
 import { computed } from 'vue'
 import { cartCount } from '@/store/index.js'
+import { currentRole, roleTabs } from '@/store/role.js'
 
 const props = defineProps({
   active: { type: String, default: 'home' }
 })
 
-const tabs = [
-  { key: 'home', name: '首页', icon: 'home', path: '/pages/tabbar/home/home' },
-  { key: 'cate', name: '分类', icon: 'grid', path: '/pages/tabbar/category/category' },
-  { key: 'cart', name: '菜篮子', icon: 'cart', path: '/pages/tabbar/cart/cart' },
-  { key: 'community', name: '农友圈', icon: 'chat', path: '/pages/tabbar/community/community' },
-  { key: 'mine', name: '我的', icon: 'user', path: '/pages/tabbar/profile/profile' }
-]
-
-const count = computed(() => cartCount.value)
+// 底部导航跟着身份走：买家 / 农户 / 专家 各一套，配置在 common/roles.js
+const tabs = computed(() => roleTabs())
+// 主色也跟身份走：买家绿、农户橙、专家蓝，切换后一眼能看出身份变了
+const brand = computed(() => (currentRole() && currentRole().color) || '#0FC97A')
 
 function go(t) {
   if (props.active === t.key) return
@@ -88,7 +91,6 @@ function go(t) {
   color: #9aa7a1;
 }
 .label.on {
-  color: #0fc97a;
   font-weight: 600;
 }
 </style>

@@ -83,6 +83,8 @@
         <!-- 操作 -->
         <view class="acts">
           <view class="act" @tap.stop="toDetail(a)">详情</view>
+          <view v-if="a.growing" class="act" @tap.stop="toMonitor(a)">云监工</view>
+          <view v-if="a.growing" class="act" @tap.stop="toHarvest(a)">收成</view>
           <view class="act" @tap.stop="toRecord(a)">农事记录</view>
           <view class="act" @tap.stop="toCert(a)">认养证书</view>
           <view v-if="a.growing" class="act danger" @tap.stop="askCancel(a)">申请退养</view>
@@ -168,8 +170,16 @@ function toRecord(a) {
   uni.navigateTo({ url: '/pages/farm/record?code=' + a.code })
 }
 
+function toMonitor(a) {
+  uni.navigateTo({ url: '/pages/farm/monitor?id=' + a.id })
+}
+
+function toHarvest(a) {
+  uni.navigateTo({ url: '/pages/farm/harvest?id=' + a.id })
+}
+
 function toCert(a) {
-  uni.navigateTo({ url: '/pages/farm/adopt-result?id=' + a.id })
+  uni.navigateTo({ url: '/pages/farm/certificate?id=' + a.id })
 }
 
 function again(a) {
@@ -384,13 +394,14 @@ function askCancel(a) {
 /* 操作 */
 .acts {
   display: flex;
+  flex-wrap: wrap;
   gap: 10rpx;
   margin-top: 18rpx;
   padding-top: 18rpx;
   border-top: 2rpx solid #f2f5f3;
 }
 .act {
-  flex: 1;
+  flex: 1 1 calc((100% - 20rpx) / 3);
   height: 64rpx;
   border-radius: 32rpx;
   background: #f2fbf6;

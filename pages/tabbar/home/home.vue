@@ -235,7 +235,11 @@ function onAdd(p) {
 }
 
 function onQuick(q) {
-  if (q.path) return go(q.path)
+  if (q.path) {
+    // 底部导航页只能用 reLaunch，navigateTo 会失败
+    if (q.path.indexOf('/pages/tabbar/') === 0) return uni.reLaunch({ url: q.path })
+    return go(q.path)
+  }
   if (q.id === 'q3') return go('/pages/farm/calendar')
   toast('功能演示：' + q.name)
 }
@@ -415,16 +419,17 @@ onPullDownRefresh(() => {
 }
 .quick {
   margin: 24rpx 28rpx 0;
-  padding: 26rpx 10rpx;
+  padding: 26rpx 10rpx 10rpx;
   display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
 }
 .q-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12rpx;
-  width: 25%;
+  width: 33.33%;
+  margin-bottom: 16rpx;
 }
 .q-icon {
   width: 88rpx;

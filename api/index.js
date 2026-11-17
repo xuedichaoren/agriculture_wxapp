@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 数据访问层统一出口
  *
  * 页面只依赖本文件：
@@ -16,3 +16,9 @@ export * from './relation.js'
 export * from './catalog.js'
 export * from './adopt.js'
 export * from './adopt-plan.js'
+export * from './adopt-cert.js'
+export * from './adopt-live.js'
+export * from './adopt-harvest.js'
+export * from './expert.js'
+export * from './diagnose.js'
+export * from './plant-id.js'

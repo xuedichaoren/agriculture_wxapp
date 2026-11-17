@@ -84,6 +84,7 @@
 
       <view class="actions">
         <view class="btn btn-primary" @tap="toFarm">看看地块长势</view>
+        <view class="btn btn-ghost mt" @tap="toCert">保存 / 分享证书</view>
         <view class="btn btn-ghost mt" @tap="toMine">我的认养</view>
       </view>
 
@@ -140,6 +141,10 @@ function toFarm() {
 
 function toMine() {
   uni.redirectTo({ url: '/pages/farm/my' })
+}
+
+function toCert() {
+  uni.navigateTo({ url: '/pages/farm/certificate?id=' + adoptionId.value })
 }
 
 function toAdopt() {

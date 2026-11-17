@@ -273,7 +273,22 @@ function back() {
   uni.navigateBack()
 }
 function share() {
-  uni.showActionSheet({ itemList: ['分享给好友', '生成海报', '复制链接'] })
+  uni.showActionSheet({
+    itemList: ['复制商品信息', '联系农场', '查看全部评价'],
+    success: (r) => {
+      const p = product.value
+      if (r.tapIndex === 0) {
+        uni.setClipboardData({
+          data: p.name + ' · ￥' + p.price + ' · 湘农汇',
+          success: () => uni.showToast({ title: '商品信息已复制', icon: 'none' })
+        })
+      } else if (r.tapIndex === 1) {
+        uni.navigateTo({ url: '/pages/message/chat?id=' + (p.farmId || 'f1') })
+      } else {
+        uni.navigateTo({ url: '/pages/product/reviews?id=' + p.id })
+      }
+    }
+  })
 }
 function go(url) {
   uni.navigateTo({ url })

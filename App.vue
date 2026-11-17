@@ -1,6 +1,7 @@
 <script>
 import { CLOUD_OK } from '@/common/cloud.js'
 import { handleWechatCallback } from '@/api/index.js'
+import { afterLoginUrl } from '@/store/role.js'
 
 export default {
   onLaunch() {
@@ -34,7 +35,8 @@ export default {
         if (session) {
           for (const k of ['code', 'state', 'provider']) url.searchParams.delete(k)
           history.replaceState(null, '', url.pathname + url.search + url.hash)
-          uni.reLaunch({ url: '/pages/tabbar/home/home' })
+          // 没选过身份先走身份选择，选过直接进对应首页
+          uni.reLaunch({ url: afterLoginUrl() })
         }
       } catch (e) {
         uni.showToast({ title: (e && e.message) || '微信登录失败，请重试', icon: 'none' })

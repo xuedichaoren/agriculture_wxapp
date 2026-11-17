@@ -52,6 +52,30 @@
     </view>
 
     <scroll-view scroll-y class="body no-scrollbar">
+      <!-- 身份卡：当前身份 + 切换入口 -->
+      <view class="card role-card" @tap="toRoleSwitch">
+        <view class="rc-main">
+          <view class="rc-ico" :style="{ background: role.soft }">
+            <text class="rc-emoji">{{ role.emoji }}</text>
+          </view>
+          <view class="flex1">
+            <view class="rc-name-row">
+              <text class="rc-name">{{ role.name }}</text>
+              <text class="rc-badge" :style="{ color: role.color, background: role.soft }">{{ roleTag }}</text>
+            </view>
+            <text class="rc-sub">{{ role.desc }}</text>
+          </view>
+          <view class="rc-switch">
+            <text class="rc-switch-t">切换</text>
+            <icon-svg name="right" :size="20" color="#9AA7A1" />
+          </view>
+        </view>
+        <view v-if="moreRoles.length" class="rc-more">
+          <text class="rc-more-t">还开通了：{{ moreRoles.map((r) => r.name).join('、') }}</text>
+          <text class="rc-more-s">同一个账号可以同时是买家、农户和专家</text>
+        </view>
+      </view>
+
       <!-- 订单 -->
       <view class="card orders">
         <view class="o-head">
@@ -140,6 +164,7 @@
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { countByStatus, growingAdoptions, store, syncCloudUser } from '@/store/index.js'
+import { activatedRoles, appStatusOf, currentRole } from '@/store/role.js'
 import * as api from '@/api/index.js'
 import { toast } from '@/common/utils.js'
 
@@ -150,6 +175,29 @@ try {
 } catch (e) {}
 
 const usableCoupons = computed(() => store.coupons.filter((c) => !c.isUsed).length)
+
+// 当前身份；还没选过时给一个中性的占位，避免页面报错
+const role = computed(
+  () =>
+    currentRole() || {
+      key: '',
+      name: '未选身份',
+      emoji: '🙂',
+      desc: '选一个身份，看到的功能会不一样',
+      color: '#0FC97A',
+      soft: '#E9FAF2'
+    }
+)
+const roleTag = computed(() => {
+  if (!role.value.key) return '去选择'
+  if (role.value.key === 'buyer') return '买家'
+  return appStatusOf(role.value.key) === 'approved' ? '已认证' : '审核中'
+})
+const moreRoles = computed(() => activatedRoles().filter((r) => r.key !== role.value.key))
+
+function toRoleSwitch() {
+  uni.navigateTo({ url: '/pages/role/switch' })
+}
 
 // 最近一块在种的认养地
 const myAdoption = computed(() => growingAdoptions()[0] || null)
@@ -167,22 +215,37 @@ const statusList = computed(() => [
   { key: 'done', name: '待评价', icon: 'star', count: 1 }
 ])
 
-const tools = [
-  { name: '农事日历', icon: 'calendar', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/farm/calendar' },
-  { name: '我的收藏', icon: 'heart', bg: '#FFEEF0', color: '#FF5A4E', path: '/pages/profile/favorite' },
-  { name: '优惠券', icon: 'coupon', bg: '#FFF4E4', color: '#FF8A3D', path: '/pages/profile/coupon' },
-  { name: '收货地址', icon: 'location', bg: '#EAF9F1', color: '#06A96A', path: '/pages/address/list' },
-  { name: '足迹', icon: 'eye', bg: '#F1EEFF', color: '#7A6BFF', path: '/pages/profile/favorite?tab=foot' },
-  { name: '我的农场', icon: 'shop', bg: '#EFF8E9', color: '#5CA83A', path: '/pages/farm/home?id=f1' },
-  { name: '农友圈', icon: 'users', bg: '#EAF7FF', color: '#2FA0D8', path: '/pages/tabbar/community/community' },
-  { name: '客服', icon: 'comment', bg: '#F5F0FF', color: '#8B6BFF', path: '/pages/message/chat?id=m1' }
-]
+// 第一个宫格跟身份走：农户看到工作台，专家看到接诊台，买家看到开通入口
+const tools = computed(() => {
+  const r = currentRole()
+  const list = []
+  if (r && r.key === 'farmer') {
+    list.push({ name: '农户工作台', icon: 'sprout', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/farm/workbench' })
+  } else if (r && r.key === 'expert') {
+    list.push({ name: '接诊台', icon: 'comment', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/expert/workbench' })
+  } else {
+    list.push({ name: '成为农户', icon: 'shop', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/role/apply?role=farmer' })
+  }
+  list.push(
+    { name: '拍照识病', icon: 'camera', bg: '#EAF9F1', color: '#06A96A', path: '/pages/scan/scan' },
+    { name: '专家问诊', icon: 'users', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/expert/list' },
+    { name: '我的问诊', icon: 'comment', bg: '#F1EEFF', color: '#7A6BFF', path: '/pages/expert/qa' },
+    { name: '农事日历', icon: 'calendar', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/farm/calendar' },
+    { name: '我的收藏', icon: 'heart', bg: '#FFEEF0', color: '#FF5A4E', path: '/pages/profile/favorite' },
+    { name: '收货地址', icon: 'location', bg: '#EAF9F1', color: '#06A96A', path: '/pages/address/list' },
+    { name: '农友圈', icon: 'chat', bg: '#EAF7FF', color: '#2FA0D8', path: '/pages/tabbar/community/community' },
+    { name: '优惠券', icon: 'coupon', bg: '#FFF4E4', color: '#FF8A3D', path: '/pages/profile/coupon' }
+  )
+  return list
+})
 
-const menus = [
+const menus = computed(() => [
+  { name: '身份与权限', icon: 'users', value: roleTag.value, path: '/pages/role/switch' },
+  { name: '识图记录', icon: 'camera', value: '', path: '/pages/scan/history' },
   { name: '帮助与反馈', icon: 'comment', value: '' },
   { name: '关于湘农汇', icon: 'leaf', value: 'v1.0.0' },
   { name: '设置', icon: 'setting', value: '', path: '/pages/profile/settings' }
-]
+])
 
 function go(url) {
   if (url.startsWith('/pages/tabbar')) return uni.reLaunch({ url })
@@ -451,6 +514,75 @@ onShow(() => {
   font-size: 19rpx;
   color: #b3bfba;
   margin-top: 10rpx;
+}
+.role-card {
+  padding: 22rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+.rc-main {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+.rc-ico {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rc-emoji {
+  font-size: 42rpx;
+}
+.rc-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.rc-name {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+.rc-badge {
+  font-size: 18rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 20rpx;
+  font-weight: 600;
+}
+.rc-sub {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  color: #9aa7a1;
+}
+.rc-switch {
+  display: flex;
+  align-items: center;
+  gap: 2rpx;
+  flex-shrink: 0;
+}
+.rc-switch-t {
+  font-size: 22rpx;
+  color: #06a96a;
+  font-weight: 600;
+}
+.rc-more {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 2rpx solid #f4f8f5;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.rc-more-t {
+  font-size: 20rpx;
+  color: #7c8a84;
+}
+.rc-more-s {
+  font-size: 18rpx;
+  color: #b3bfba;
 }
 .tools {
   display: flex;

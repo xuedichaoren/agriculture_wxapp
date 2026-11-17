@@ -1,0 +1,12 @@
+{
+  "name": "agriculture-wxapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "湘农汇 · 生鲜农产品认养小程序",
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5020720260921001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5020720260921001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5020720260921001",
+    "vue": "^3.4.21"
+  }
+}

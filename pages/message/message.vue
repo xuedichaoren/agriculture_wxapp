@@ -37,18 +37,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { MESSAGES } from '@/mock/index.js'
 import { store } from '@/store/index.js'
 import { toast } from '@/common/utils.js'
 
 const list = ref(MESSAGES)
-const entries = [
+const growingCount = computed(() => store.adoptions.filter((a) => a.status === 'growing').length)
+
+const entries = computed(() => [
   { name: '订单通知', emoji: '📦', bg: '#eaf9f1', badge: 1, path: '/pages/order/list?tab=shipping' },
   { name: '物流助手', emoji: '🚚', bg: '#eaf3ff', badge: 0, path: '/pages/order/logistics?id=NH20261109008' },
+  { name: '认养通知', emoji: '🌱', bg: '#eefaf3', badge: growingCount.value, path: '/pages/farm/my' },
   { name: '优惠活动', emoji: '🎁', bg: '#fff4e4', badge: 2, path: '/pages/profile/coupon' },
   { name: '农友互动', emoji: '💬', bg: '#f1eeff', badge: 0, path: '/pages/tabbar/community/community' }
-]
+])
 
 function onEntry(e) {
   if (e.path.startsWith('/pages/tabbar')) return uni.reLaunch({ url: e.path })
@@ -61,7 +64,7 @@ function openChat(m) {
     return toast('系统通知详情（演示）')
   }
   if (m.type === 'notice') {
-    return uni.navigateTo({ url: '/pages/post/detail?id=' + (c.post || 'o2') })
+    return uni.navigateTo({ url: '/pages/post/detail?id=' + (m.postId || 'o2') })
   }
   uni.navigateTo({ url: `/pages/message/chat?id=${m.id}` })
 }

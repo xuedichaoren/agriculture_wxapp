@@ -62,6 +62,22 @@ export function login(phone) {
   persist()
 }
 
+/**
+ * 写入登录态（微信登录 / 本地登录共用）
+ *
+ * login(phone) 是早期手机号登录用的，现在登录页只剩微信，
+ * 这里不再假定有手机号，避免新账号显示成演示手机号。
+ */
+export function setLoginSession(profile = {}) {
+  store.token = 'wx-token-' + Date.now()
+  if (profile.nickname) store.user.nickname = profile.nickname
+  if (profile.avatar) store.user.avatar = profile.avatar
+  if (profile.phone) store.user.phone = profile.phone
+  uni.setStorageSync('nh_token', store.token)
+  uni.setStorageSync('nh_onboarded', true)
+  persist()
+}
+
 export function logout() {
   store.token = ''
   uni.removeStorageSync('nh_token')
@@ -215,6 +231,20 @@ export function confirmReceipt(id) {
   if (!o) return
   o.status = 'done'
   persist()
+}
+
+/** 卖家发货：置为运输中，并生成一条模拟物流 */
+export function shipOrder(id, express) {
+  const o = store.orders.find((x) => x.id === id)
+  if (!o) return false
+  o.status = 'shipping'
+  o.express = express || {
+    company: '湘农汇冷链',
+    no: 'XNH' + Date.now().toString().slice(-10),
+    updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+  }
+  persist()
+  return true
 }
 
 export function countByStatus(status) {

@@ -1,4 +1,4 @@
-﻿{
+{
   "easycom": {
     "autoscan": true,
     "custom": {
@@ -8,7 +8,8 @@
       "^empty-box$": "@/components/empty-box.vue",
       "^product-card$": "@/components/product-card.vue",
       "^icon-svg$": "@/components/icon-svg.vue",
-      "^tab-bar$": "@/components/tab-bar.vue"
+      "^tab-bar$": "@/components/tab-bar.vue",
+      "^ui-(.*)$": "@/components/ui-$1.vue"
     }
   },
   "pages": [
@@ -253,6 +254,13 @@
       }
     },
     {
+      "path": "pages/farm/certificate",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
       "path": "pages/farm/my",
       "style": {
         "navigationStyle": "custom",
@@ -268,6 +276,118 @@
     },
     {
       "path": "pages/farm/delivery",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/monitor",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/harvest",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/role/switch",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/role/apply",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/list",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/ask",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/qa",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/chat",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/expert/workbench",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/scan/scan",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/scan/result",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/scan/history",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/workbench",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/sell",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/dev/ui",
       "style": {
         "navigationStyle": "custom",
         "backgroundColor": "#F4F8F5"

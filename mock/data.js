@@ -244,10 +244,12 @@ export const BANNERS = [
 ]
 
 export const QUICK_ENTRIES = [
-  { id: 'q1', name: '今日特价', emoji: '🏷️', bg: ['#E9FBF1', '#CFF4E1'] },
-  { id: 'q2', name: '产地直采', emoji: '🚚', bg: ['#FFF4E4', '#FFE2BC'] },
-  { id: 'q3', name: '农事日历', emoji: '🗓️', bg: ['#EAF3FF', '#D3E5FF'], path: '/pages/farm/calendar' },
-  { id: 'q4', name: '认养菜地', emoji: '🌱', bg: ['#F0FBE9', '#DAF2C9'], path: '/pages/farm/adopt' }
+  { id: 'q1', name: '拍照识病', emoji: '🔍', bg: ['#EAF9F1', '#CFF3E0'], path: '/pages/scan/scan' },
+  { id: 'q2', name: '专家问诊', emoji: '👨‍🌾', bg: ['#EAF3FF', '#D3E5FF'], path: '/pages/expert/list' },
+  { id: 'q3', name: '认养菜地', emoji: '🌱', bg: ['#F0FBE9', '#DAF2C9'], path: '/pages/farm/adopt' },
+  { id: 'q4', name: '农事日历', emoji: '🗓️', bg: ['#FFF4E4', '#FFE2BC'], path: '/pages/farm/calendar' },
+  { id: 'q5', name: '今日特价', emoji: '🏷️', bg: ['#E9FBF1', '#CFF4E1'], path: '/pages/tabbar/category/category' },
+  { id: 'q6', name: '产地直采', emoji: '🚚', bg: ['#F1EEFF', '#DED8FF'], path: '/pages/tabbar/category/category' }
 ]
 
 export const DEFAULT_ADDRESSES = [

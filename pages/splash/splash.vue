@@ -24,13 +24,15 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { roleHome } from '@/store/role.js'
 
 onMounted(() => {
   setTimeout(() => {
     const onboarded = uni.getStorageSync('nh_onboarded')
     const token = uni.getStorageSync('nh_token')
     if (onboarded && token) {
-      uni.reLaunch({ url: '/pages/tabbar/home/home' })
+      // 登录过就回到当前身份的首页（买家 / 农户 / 专家）
+      uni.reLaunch({ url: roleHome() })
     } else if (onboarded) {
       uni.redirectTo({ url: '/pages/login/login' })
     } else {

@@ -206,7 +206,22 @@ function back() {
   uni.navigateBack()
 }
 function share() {
-  uni.showActionSheet({ itemList: ['分享给好友', '生成农场名片', '复制链接'] })
+  uni.showActionSheet({
+    itemList: ['复制农场信息', '去认养一块地', '联系农场'],
+    success: (r) => {
+      const f = farm.value
+      if (r.tapIndex === 0) {
+        uni.setClipboardData({
+          data: f.name + ' · 湘农汇产地直采',
+          success: () => toast('农场信息已复制')
+        })
+      } else if (r.tapIndex === 1) {
+        uni.navigateTo({ url: '/pages/farm/adopt' })
+      } else {
+        uni.navigateTo({ url: '/pages/message/chat?id=' + f.id })
+      }
+    }
+  })
 }
 function go(url) {
   if (url.startsWith('/pages/tabbar')) uni.reLaunch({ url })

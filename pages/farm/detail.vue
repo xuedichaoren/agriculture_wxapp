@@ -50,6 +50,14 @@
 
       <!-- 快捷入口 -->
       <view class="quick card">
+        <view class="q-item" @tap="toMonitor">
+          <view class="q-ico"><icon-svg name="video" :size="34" color="#0A8F5C" :stroke="1.7" /></view>
+          <text class="q-txt">云监工</text>
+        </view>
+        <view class="q-item" @tap="toHarvest">
+          <view class="q-ico"><icon-svg name="gift" :size="34" color="#0A8F5C" :stroke="1.7" /></view>
+          <text class="q-txt">收成</text>
+        </view>
         <view class="q-item" @tap="toCalendar">
           <view class="q-ico"><icon-svg name="calendar" :size="34" color="#0A8F5C" :stroke="1.7" /></view>
           <text class="q-txt">农事日历</text>
@@ -251,7 +259,15 @@ function toDelivery() {
 }
 
 function toCert() {
-  uni.navigateTo({ url: '/pages/farm/adopt-result?id=' + adoptionId.value })
+  uni.navigateTo({ url: '/pages/farm/certificate?id=' + adoptionId.value })
+}
+
+function toMonitor() {
+  uni.navigateTo({ url: '/pages/farm/monitor?id=' + adoptionId.value })
+}
+
+function toHarvest() {
+  uni.navigateTo({ url: '/pages/farm/harvest?id=' + adoptionId.value })
 }
 
 function toChat() {
@@ -272,7 +288,13 @@ function toFarm() {
 }
 
 function share() {
-  uni.showActionSheet({ itemList: ['分享给好友', '生成长势海报', '复制认养编号'] })
+  uni.showActionSheet({
+    itemList: ['查看认养证书', '保存 / 分享证书', '复制认养编号'],
+    success: (r) => {
+      if (r.tapIndex === 0 || r.tapIndex === 1) return toCert()
+      if (r.tapIndex === 2) copyText(adoptionId.value)
+    }
+  })
 }
 
 function askCancel() {
@@ -433,11 +455,13 @@ function askCancel() {
 /* 快捷 */
 .quick {
   margin-top: 20rpx;
-  padding: 22rpx 10rpx;
+  padding: 22rpx 10rpx 4rpx;
   display: flex;
+  flex-wrap: wrap;
 }
 .q-item {
-  flex: 1;
+  flex: 0 0 33.33%;
+  margin-bottom: 18rpx;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -460,7 +484,7 @@ function askCancel() {
 .q-badge {
   position: absolute;
   top: -6rpx;
-  right: 28rpx;
+  right: 40rpx;
   min-width: 30rpx;
   height: 30rpx;
   border-radius: 15rpx;
