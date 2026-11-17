@@ -29,26 +29,34 @@
       </view>
     </view>
 
-    <scroll-view scroll-y class="body" @scrolltolower="loadMore">
-      <!-- Banner -->
+    <scroll-view
+      scroll-y
+      class="body"
+      :scroll-into-view="scrollInto"
+      @scrolltolower="loadMore"
+    >
+      <!-- Banner：实拍图 + 左侧压暗，保证白字可读 -->
       <view class="banner-wrap">
         <swiper
           class="banner"
           :indicator-dots="true"
-          indicator-color="rgba(255,255,255,.45)"
+          indicator-color="rgba(255,255,255,.42)"
           indicator-active-color="#FFFFFF"
           :autoplay="true"
           :interval="4200"
           :circular="true"
         >
           <swiper-item v-for="b in BANNERS" :key="b.id">
-            <view class="banner-card" :style="{ background: `linear-gradient(120deg, ${b.bg[0]}, ${b.bg[1]})` }">
+            <view class="banner-card" hover-class="banner-card-hover" :hover-stay-time="80" @tap="onBanner(b)">
+              <image v-if="b.img" class="b-img" :src="b.img" mode="aspectFill" />
+              <view v-else class="b-img" :style="{ background: `linear-gradient(120deg, ${b.bg[0]}, ${b.bg[1]})` }" />
+              <view class="b-shade" />
               <view class="b-txt">
+                <view v-if="b.tag" class="b-pill">{{ b.tag }}</view>
                 <text class="b-title">{{ b.title }}</text>
-                <text class="b-sub">{{ b.sub }}</text>
-                <view class="b-btn">立即选购</view>
+                <text class="b-sub">{{ b.subtitle }}</text>
+                <view class="b-btn">{{ b.btn || '立即选购' }}</view>
               </view>
-              <text class="b-emoji">{{ b.emoji }}</text>
             </view>
           </swiper-item>
         </swiper>
@@ -64,9 +72,15 @@
         </view>
       </view>
 
-      <!-- 分类 -->
+      <!-- 分类：圆形实拍图 -->
       <scroll-view scroll-x class="cats no-scrollbar" :show-scrollbar="false">
         <view class="cats-inner">
+          <view class="cat" :class="{ on: activeCat === 'all' }" @tap="switchCat('all')">
+            <view class="cat-ring">
+              <image class="cat-img" src="/static/images/misc/harvest.jpg" mode="aspectFill" />
+            </view>
+            <text class="cat-name">全部</text>
+          </view>
           <view
             v-for="c in CATEGORIES"
             :key="c.id"
@@ -74,7 +88,10 @@
             :class="{ on: activeCat === c.id }"
             @tap="switchCat(c.id)"
           >
-            <text class="cat-emoji">{{ c.emoji }}</text>
+            <view class="cat-ring">
+              <image v-if="c.img" class="cat-img" :src="c.img" mode="aspectFill" />
+              <text v-else class="cat-emoji">{{ c.emoji }}</text>
+            </view>
             <text class="cat-name">{{ c.name }}</text>
           </view>
         </view>
@@ -101,8 +118,15 @@
 
       <scroll-view scroll-x class="flash no-scrollbar" :show-scrollbar="false">
         <view class="flash-inner">
-          <view v-for="p in flashList" :key="p.id" class="flash-card" @tap="toDetail(p.id)">
-            <prod-img :src="p.coverUrl" :emoji="p.emoji" :bg="p.bg" :h="190" radius="22rpx" />
+          <view
+            v-for="p in flashList"
+            :key="p.id"
+            class="flash-card"
+            hover-class="card-hover"
+            :hover-stay-time="80"
+            @tap="toDetail(p.id)"
+          >
+            <prod-img :src="p.coverUrl" :emoji="p.emoji" :bg="p.bg" :h="196" radius="20rpx" />
             <text class="f-name ellipsis">{{ p.name }}</text>
             <view class="row between">
               <price-tag :price="p.price" :num-size="32" />
@@ -112,44 +136,50 @@
         </view>
       </scroll-view>
 
-      <!-- 农场推荐 -->
-      <view class="farm-card card" @tap="go('/pages/farm/home?id=f1')">
-        <view class="farm-top">
-          <view class="farm-avatar">🧑‍🌾</view>
-          <view class="flex1">
+      <!-- 农场推荐：封面实拍 + 在售小图 -->
+      <view class="farm-card card">
+        <view class="farm-cover" hover-class="card-hover" :hover-stay-time="80" @tap="go('/pages/farm/home?id=' + featureFarm.id)">
+          <image v-if="featureFarm.photo" class="fc-img" :src="featureFarm.photo" mode="aspectFill" />
+          <view class="fc-shade" />
+          <view class="fc-info">
             <view class="row">
-              <text class="farm-name">李伯的菜园</text>
-              <view class="tag">当日采摘</view>
+              <text class="fc-name">{{ featureFarm.name }}</text>
+              <view class="fc-tag">{{ featureFarm.tags[0] }}</view>
+              <text class="fc-rate">★ {{ featureFarm.rating }}</text>
             </view>
-            <text class="farm-desc">长沙临安 · 2.4 万人关注 · 评分 4.9</text>
+            <text class="fc-desc">{{ featureFarm.city }} · {{ followText }}关注</text>
           </view>
-          <view class="follow-btn">进农场</view>
+          <view class="fc-btn">进农场</view>
         </view>
         <view class="farm-goods">
           <view v-for="p in farmGoods" :key="p.id" class="fg-item" @tap.stop="toDetail(p.id)">
-            <prod-img :src="p.coverUrl" :emoji="p.emoji" :bg="p.bg" :h="128" radius="16rpx" />
+            <prod-img :src="p.coverUrl" :emoji="p.emoji" :bg="p.bg" :h="132" radius="16rpx" />
             <text class="fg-price">¥{{ p.price }}</text>
           </view>
         </view>
       </view>
 
       <!-- 直播 -->
-      <view class="live-card" @tap="go('/pages/live/live')">
+      <view class="live-card" hover-class="card-hover" :hover-stay-time="80" @tap="go('/pages/live/live')">
+        <image class="live-bg" src="/static/images/farm/plot.jpg" mode="aspectFill" />
+        <view class="live-shade" />
         <view class="live-left">
           <view class="live-badge">
             <view class="live-dot" />
             <text class="live-txt">直播中</text>
           </view>
-          <text class="live-title">跟着李伯逛菜地</text>
-          <text class="live-sub">正在看 1.2 万人 · 今晚现摘油菜</text>
+          <text class="live-title">跟着张婶逛辣椒地</text>
+          <text class="live-sub">正在看 1.2 万人 · 今晚现摘现发</text>
         </view>
-        <text class="live-emoji">🥬</text>
+        <view class="live-play">
+          <icon-svg name="video" :size="30" color="#0A3B2A" :stroke="2" />
+        </view>
       </view>
 
       <!-- 猜你喜欢 -->
-      <view class="sec-head">
-        <text class="sec-title">为你推荐</text>
-        <text class="sec-sub">根据你的口味挑选</text>
+      <view class="sec-head" id="rec">
+        <text class="sec-title">{{ activeCatName }}</text>
+        <text class="sec-sub">{{ activeCat === 'all' ? '根据你的口味挑选' : '按分类筛选的结果' }}</text>
       </view>
 
       <view class="grid">
@@ -171,7 +201,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { onPullDownRefresh } from '@dcloudio/uni-app'
-import { BANNERS, CATEGORIES, PRODUCTS, QUICK_ENTRIES } from '@/mock/index.js'
+import { BANNERS, CATEGORIES, FARMS, PRODUCTS, QUICK_ENTRIES } from '@/mock/index.js'
 import { addToCart, store } from '@/store/index.js'
 import { toast } from '@/common/utils.js'
 
@@ -186,8 +216,15 @@ const mm = ref('18')
 const ss = ref('45')
 let timer = null
 
+/** 首页只推一个农场，取种子数据的第一家，别再单独写死一份 */
+const featureFarm = computed(() => FARMS[0] || {})
+const followText = computed(() => {
+  const n = Number(featureFarm.value.followerCount) || 0
+  return n >= 10000 ? (n / 10000).toFixed(1) + ' 万' : n + ''
+})
+
 const flashList = computed(() => PRODUCTS.filter((p) => p.originalPrice > p.price).slice(0, 6))
-const farmGoods = computed(() => PRODUCTS.filter((p) => p.farmId === 'f1').slice(0, 4))
+const farmGoods = computed(() => PRODUCTS.filter((p) => p.farmId === featureFarm.value.id).slice(0, 4))
 
 const allList = computed(() =>
   activeCat.value === 'all' ? PRODUCTS : PRODUCTS.filter((p) => p.categoryId === activeCat.value)
@@ -205,11 +242,34 @@ function loadMore() {
   if (page.value > 4) noMore.value = true
 }
 
+const scrollInto = ref('')
+
+const activeCatName = computed(() => {
+  if (activeCat.value === 'all') return '为你推荐'
+  const c = CATEGORIES.find((x) => x.id === activeCat.value)
+  return c ? c.name : '为你推荐'
+})
+
 function switchCat(id) {
   activeCat.value = id
   page.value = 1
   noMore.value = false
   list.value = allList.value.slice(0, 8)
+  // 筛选结果在视口之外，不滚过去用户会以为没反应
+  scrollInto.value = ''
+  setTimeout(() => {
+    scrollInto.value = 'rec'
+  }, 60)
+}
+
+function onBanner(b) {
+  if (!b) return
+  if (!b.path) return toast('活动页还在准备')
+  if (b.path.indexOf('/pages/tabbar/') === 0) return uni.reLaunch({ url: b.path })
+  uni.navigateTo({
+    url: b.path,
+    fail: () => toast('页面打不开，稍后再试')
+  })
 }
 
 function pickCity() {
@@ -226,7 +286,11 @@ function go(url) {
 }
 
 function toDetail(id) {
-  uni.navigateTo({ url: `/pages/product/detail?id=${id}` })
+  if (!id) return
+  uni.navigateTo({
+    url: `/pages/product/detail?id=${id}`,
+    fail: () => toast('商品页打不开，稍后再试')
+  })
 }
 
 function onAdd(p) {
@@ -362,61 +426,97 @@ onPullDownRefresh(() => {
   flex: 1;
   height: 0;
 }
+
+/* ---------- Banner ---------- */
 .banner-wrap {
   margin-top: 22rpx;
   padding: 0 28rpx;
 }
 .banner {
-  height: 270rpx;
-  border-radius: 28rpx;
+  height: 300rpx;
+  border-radius: 30rpx;
   overflow: hidden;
+  box-shadow: 0 16rpx 36rpx rgba(10, 60, 42, 0.16);
 }
 .banner-card {
-  height: 100%;
-  border-radius: 28rpx;
-  display: flex;
-  align-items: center;
-  padding: 0 34rpx;
   position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
   overflow: hidden;
+  border-radius: 30rpx;
+}
+.b-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.b-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(6, 32, 22, 0.84) 0%,
+    rgba(6, 32, 22, 0.58) 42%,
+    rgba(6, 32, 22, 0.08) 100%
+  );
 }
 .b-txt {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  z-index: 2;
+  align-items: flex-start;
+  padding: 0 0 36rpx 32rpx;
+}
+.b-pill {
+  background: rgba(255, 255, 255, 0.22);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  font-size: 19rpx;
+  font-weight: 600;
+  padding: 4rpx 14rpx;
+  border-radius: 40rpx;
+  margin-bottom: 14rpx;
 }
 .b-title {
   color: #fff;
-  font-size: 34rpx;
+  font-size: 38rpx;
   font-weight: 800;
   letter-spacing: -0.5rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.24);
 }
 .b-sub {
   color: rgba(255, 255, 255, 0.88);
-  font-size: 23rpx;
+  font-size: 22rpx;
   margin-top: 10rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
 }
 .b-btn {
-  margin-top: 20rpx;
-  height: 52rpx;
-  padding: 0 24rpx;
-  border-radius: 52rpx;
-  background: rgba(255, 255, 255, 0.95);
+  margin-top: 22rpx;
+  height: 56rpx;
+  padding: 0 26rpx;
+  border-radius: 56rpx;
+  background: #fff;
   color: #0a8f5c;
   font-size: 22rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
-  align-self: flex-start;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.16);
 }
-.b-emoji {
-  position: absolute;
-  right: 20rpx;
-  bottom: -10rpx;
-  font-size: 200rpx;
-  opacity: 0.92;
-  filter: drop-shadow(0 12rpx 20rpx rgba(0, 60, 40, 0.2));
+.banner-card-hover {
+  opacity: 0.94;
 }
+
+/* ---------- 快捷入口 ---------- */
 .quick {
   margin: 24rpx 28rpx 0;
   padding: 26rpx 10rpx 10rpx;
@@ -432,12 +532,13 @@ onPullDownRefresh(() => {
   margin-bottom: 16rpx;
 }
 .q-icon {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 26rpx;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 28rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 0 2rpx rgba(255, 255, 255, 0.7);
 }
 .q-emoji {
   font-size: 44rpx;
@@ -446,43 +547,67 @@ onPullDownRefresh(() => {
   font-size: 22rpx;
   color: #3d4a45;
 }
+
+/* ---------- 分类 ---------- */
 .cats {
-  margin-top: 26rpx;
+  margin-top: 24rpx;
   white-space: nowrap;
 }
 .cats-inner {
   display: inline-flex;
-  align-items: center;
-  gap: 14rpx;
+  align-items: flex-start;
+  gap: 22rpx;
   padding: 0 28rpx;
 }
 .cat {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 22rpx;
-  background: #fff;
-  border-radius: 40rpx;
-  border: 2rpx solid #fff;
-  white-space: nowrap;
+  gap: 10rpx;
   flex-shrink: 0;
+  width: 104rpx;
 }
-.cat.on {
-  background: #e9faf2;
-  border-color: #0fc97a;
+.cat-ring {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 50%;
+  padding: 4rpx;
+  background: #fff;
+  box-shadow: 0 6rpx 16rpx rgba(22, 60, 45, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cat-img {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  display: block;
+}
+.cat.on .cat-ring {
+  background: linear-gradient(135deg, #16d488, #0bbd72);
+  box-shadow: 0 8rpx 20rpx rgba(13, 190, 115, 0.34);
 }
 .cat-emoji {
-  font-size: 26rpx;
+  font-size: 40rpx;
 }
 .cat-name {
-  font-size: 24rpx;
-  color: #3d4a45;
+  font-size: 21rpx;
+  color: #5c6a64;
   font-weight: 500;
+  max-width: 104rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 .cat.on .cat-name {
   color: #06a96a;
   font-weight: 700;
 }
+
+/* ---------- 分区标题 ---------- */
 .sec-head {
   padding: 34rpx 28rpx 18rpx;
   display: flex;
@@ -529,6 +654,8 @@ onPullDownRefresh(() => {
   font-size: 23rpx;
   color: #9aa7a1;
 }
+
+/* ---------- 限时特价 ---------- */
 .flash {
   white-space: nowrap;
 }
@@ -537,12 +664,16 @@ onPullDownRefresh(() => {
   gap: 18rpx;
   padding: 0 28rpx;
 }
+.card-hover {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
 .flash-card {
-  width: 220rpx;
+  width: 224rpx;
   background: #fff;
   border-radius: 24rpx;
   padding: 12rpx;
-  box-shadow: 0 8rpx 26rpx rgba(22, 60, 45, 0.05);
+  box-shadow: 0 10rpx 26rpx rgba(22, 60, 45, 0.07);
 }
 .f-name {
   display: block;
@@ -552,51 +683,89 @@ onPullDownRefresh(() => {
   margin: 12rpx 2rpx 8rpx;
 }
 .f-sales {
-  font-size: 18rpx;
+  font-size: 17rpx;
   color: #b3bfba;
+  margin-left: 8rpx;
+  flex-shrink: 0;
 }
+
+/* ---------- 农场卡 ---------- */
 .farm-card {
   margin: 30rpx 28rpx 0;
-  padding: 26rpx;
+  padding: 14rpx 14rpx 18rpx;
 }
-.farm-top {
+.farm-cover {
+  position: relative;
+  height: 200rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  gap: 18rpx;
+  align-items: flex-end;
 }
-.farm-avatar {
-  width: 84rpx;
-  height: 84rpx;
-  border-radius: 50%;
-  background: linear-gradient(150deg, #e9faf2, #c9f2dd);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 44rpx;
+.fc-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
-.farm-name {
+.fc-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgba(8, 30, 22, 0) 30%, rgba(8, 30, 22, 0.78) 100%);
+}
+.fc-info {
+  position: relative;
+  z-index: 2;
+  padding: 0 0 18rpx 20rpx;
+  flex: 1;
+  min-width: 0;
+}
+.fc-name {
   font-size: 29rpx;
   font-weight: 700;
-  margin-right: 12rpx;
+  color: #fff;
+  margin-right: 10rpx;
 }
-.farm-desc {
+.fc-tag {
+  font-size: 18rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.24);
+  border-radius: 6rpx;
+  padding: 2rpx 10rpx;
+}
+.fc-rate {
+  font-size: 19rpx;
+  font-weight: 700;
+  color: #ffd66b;
+  margin-left: 10rpx;
+}
+.fc-desc {
   display: block;
-  font-size: 21rpx;
-  color: #9aa7a1;
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.82);
   margin-top: 8rpx;
 }
-.follow-btn {
-  padding: 12rpx 24rpx;
+.fc-btn {
+  position: relative;
+  z-index: 2;
+  margin: 0 18rpx 18rpx 0;
+  padding: 10rpx 22rpx;
   border-radius: 40rpx;
-  background: #e9faf2;
-  color: #06a96a;
-  font-size: 22rpx;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0a8f5c;
+  font-size: 21rpx;
   font-weight: 700;
 }
 .farm-goods {
   display: flex;
   gap: 14rpx;
-  margin-top: 22rpx;
+  margin-top: 16rpx;
 }
 .fg-item {
   flex: 1;
@@ -606,24 +775,43 @@ onPullDownRefresh(() => {
   position: absolute;
   left: 8rpx;
   bottom: 8rpx;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   color: #ff4b3a;
   font-size: 19rpx;
   font-weight: 700;
   padding: 2rpx 8rpx;
   border-radius: 8rpx;
 }
+
+/* ---------- 直播 ---------- */
 .live-card {
   margin: 24rpx 28rpx 0;
-  height: 180rpx;
+  height: 188rpx;
   border-radius: 26rpx;
-  background: linear-gradient(120deg, #1b2a24, #2f4a3d);
+  overflow: hidden;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30rpx;
-  overflow: hidden;
-  position: relative;
+  padding: 0 26rpx;
+  box-shadow: 0 12rpx 30rpx rgba(16, 40, 30, 0.18);
+}
+.live-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.live-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, rgba(8, 26, 20, 0.86) 0%, rgba(8, 26, 20, 0.42) 100%);
 }
 .live-left {
   display: flex;
@@ -634,8 +822,8 @@ onPullDownRefresh(() => {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  background: rgba(255, 75, 58, 0.16);
-  border: 2rpx solid rgba(255, 90, 78, 0.5);
+  background: rgba(255, 75, 58, 0.2);
+  border: 2rpx solid rgba(255, 90, 78, 0.55);
   padding: 4rpx 14rpx;
   border-radius: 40rpx;
   align-self: flex-start;
@@ -663,14 +851,24 @@ onPullDownRefresh(() => {
   margin-top: 14rpx;
 }
 .live-sub {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.66);
   font-size: 21rpx;
   margin-top: 8rpx;
 }
-.live-emoji {
-  font-size: 150rpx;
-  opacity: 0.9;
+.live-play {
+  position: relative;
+  z-index: 2;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.2);
 }
+
+/* ---------- 列表 ---------- */
 .grid {
   display: flex;
   flex-wrap: wrap;

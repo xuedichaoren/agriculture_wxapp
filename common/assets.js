@@ -23,7 +23,7 @@
 export const IMAGES = {
   /* ---------- 首页 ---------- */
   'home.banner.farm': {
-    file: 'home/banner-farm.png',
+    file: 'home/banner-farm.jpg',
     w: 750,
     h: 400,
     ratio: 15 / 8,
@@ -32,7 +32,7 @@ export const IMAGES = {
     bg: ['#DFF6E8', '#B7EBCE']
   },
   'home.banner.season': {
-    file: 'home/banner-season.png',
+    file: 'home/banner-season.jpg',
     w: 750,
     h: 400,
     ratio: 15 / 8,
@@ -61,7 +61,7 @@ export const IMAGES = {
 
   /* ---------- 认养 / 农场 ---------- */
   'farm.hero': {
-    file: 'farm/hero.png',
+    file: 'farm/hero.jpg',
     w: 750,
     h: 360,
     ratio: 25 / 12,
@@ -70,7 +70,7 @@ export const IMAGES = {
     bg: ['#E4F7EC', '#BFEDD3']
   },
   'farm.plot': {
-    file: 'farm/plot.png',
+    file: 'farm/plot.jpg',
     w: 400,
     h: 300,
     ratio: 4 / 3,
@@ -90,7 +90,7 @@ export const IMAGES = {
 
   /* ---------- 专家问诊 ---------- */
   'expert.hero': {
-    file: 'expert/hero.png',
+    file: 'expert/hero.jpg',
     w: 750,
     h: 360,
     ratio: 25 / 12,
@@ -99,7 +99,7 @@ export const IMAGES = {
     bg: ['#E8F3FF', '#C9E2FF']
   },
   'expert.avatar': {
-    file: 'expert/avatar-default.png',
+    file: 'expert/avatar-default.jpg',
     w: 200,
     h: 200,
     ratio: 1,
@@ -110,7 +110,7 @@ export const IMAGES = {
 
   /* ---------- 识图 ---------- */
   'scan.guide': {
-    file: 'scan/guide.png',
+    file: 'scan/guide.jpg',
     w: 600,
     h: 600,
     ratio: 1,
@@ -159,7 +159,7 @@ export const IMAGES = {
 
   /* ---------- 其他 ---------- */
   'profile.header': {
-    file: 'profile/header.png',
+    file: 'profile/header.jpg',
     w: 750,
     h: 400,
     ratio: 15 / 8,
@@ -168,7 +168,7 @@ export const IMAGES = {
     bg: ['#14D183', '#089A60']
   },
   'community.banner': {
-    file: 'community/banner.png',
+    file: 'community/banner.jpg',
     w: 750,
     h: 280,
     ratio: 75 / 28,

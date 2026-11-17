@@ -13,7 +13,7 @@
       </scroll-view>
     </view>
 
-    <scroll-view scroll-y class="body no-scrollbar" @scrolltolower="noop">
+    <scroll-view scroll-y class="body no-scrollbar">
       <view v-if="orders.length" class="list">
         <view v-for="o in orders" :key="o.id" class="order card">
           <view class="o-head" @tap="toDetail(o.id)">
@@ -58,7 +58,8 @@
             </template>
             <template v-else>
               <view class="abtn" @tap="again(o)">再来一单</view>
-              <view class="abtn primary" @tap="toast('评价功能演示')">去评价</view>
+              <view v-if="reviewOfOrder(o.id)" class="abtn ghost" @tap="viewReview(o)">已评价</view>
+              <view v-else class="abtn primary" @tap="toReview(o.id)">去评价</view>
             </template>
           </view>
         </view>
@@ -88,6 +89,7 @@ import {
   orderAmount,
   orderItems,
   payOrder,
+  reviewOfOrder,
   store
 } from '@/store/index.js'
 import { statusText, toast } from '@/common/utils.js'
@@ -173,7 +175,15 @@ function again(o) {
 function home() {
   uni.reLaunch({ url: '/pages/tabbar/home/home' })
 }
-function noop() {}
+function toReview(id) {
+  uni.navigateTo({ url: '/pages/order/review?id=' + id })
+}
+/** 已评价的订单点进去看评价内容 */
+function viewReview(o) {
+  const it = orderItems(o)[0]
+  if (!it) return toast('这笔订单的评价在商品页能看到')
+  uni.navigateTo({ url: '/pages/product/reviews?id=' + it.productId })
+}
 </script>
 
 <style scoped>

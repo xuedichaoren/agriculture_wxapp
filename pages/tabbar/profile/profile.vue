@@ -15,15 +15,22 @@
       </view>
 
       <view class="user">
-        <view class="avatar">
-          <text class="avatar-emoji">{{ store.user.avatar }}</text>
+        <view class="avatar" @tap="go('/pages/profile/edit')">
+          <image
+            v-if="store.user.avatarUrl"
+            class="avatar-img"
+            :src="store.user.avatarUrl"
+            mode="aspectFill"
+          />
+          <text v-else class="avatar-emoji">{{ store.user.avatar }}</text>
         </view>
         <view class="flex1">
           <text class="nick">{{ store.user.nickname }}</text>
           <view class="level">{{ store.user.level }}</view>
           <text class="phone">{{ store.user.phone }}</text>
+          <text v-if="store.user.bio" class="bio">{{ store.user.bio }}</text>
         </view>
-        <view class="edit" @tap="toast('编辑资料（演示）')">
+        <view class="edit" @tap="go('/pages/profile/edit')">
           <icon-svg name="edit" :size="28" color="#FFFFFF" :stroke="1.8" />
         </view>
       </view>
@@ -220,17 +227,28 @@ const tools = computed(() => {
   const r = currentRole()
   const list = []
   if (r && r.key === 'farmer') {
-    list.push({ name: '农户工作台', icon: 'sprout', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/farm/workbench' })
+    list.push(
+      { name: '农户工作台', icon: 'sprout', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/farm/workbench' },
+      { name: '被认养管理', icon: 'leaf', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/farm/plots' },
+      { name: '被认养订单', icon: 'order', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/farm/adopt-in' }
+    )
   } else if (r && r.key === 'expert') {
     list.push({ name: '接诊台', icon: 'comment', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/expert/workbench' })
   } else {
-    list.push({ name: '成为农户', icon: 'shop', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/role/apply?role=farmer' })
+    list.push(
+      { name: '成为农户', icon: 'shop', bg: '#FFF3E2', color: '#E08A2B', path: '/pages/role/apply?role=farmer' },
+      { name: '我的认养', icon: 'leaf', bg: '#EAF9F1', color: '#06A96A', path: '/pages/farm/my' }
+    )
   }
   list.push(
     { name: '拍照识病', icon: 'camera', bg: '#EAF9F1', color: '#06A96A', path: '/pages/scan/scan' },
     { name: '专家问诊', icon: 'users', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/expert/list' },
     { name: '我的问诊', icon: 'comment', bg: '#F1EEFF', color: '#7A6BFF', path: '/pages/expert/qa' },
-    { name: '农事日历', icon: 'calendar', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/farm/calendar' },
+    { name: '农事天气', icon: 'leaf', bg: '#EAF9F1', color: '#06A96A', path: '/pages/farm/weather' },
+    // 农户要看的是自己的托管任务，不是买家视角的认养日历
+    r && r.key === 'farmer'
+      ? { name: '农事任务', icon: 'checkCircle', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/farm/tasks' }
+      : { name: '农事日历', icon: 'calendar', bg: '#EAF3FF', color: '#4A8CFF', path: '/pages/farm/calendar' },
     { name: '我的收藏', icon: 'heart', bg: '#FFEEF0', color: '#FF5A4E', path: '/pages/profile/favorite' },
     { name: '收货地址', icon: 'location', bg: '#EAF9F1', color: '#06A96A', path: '/pages/address/list' },
     { name: '农友圈', icon: 'chat', bg: '#EAF7FF', color: '#2FA0D8', path: '/pages/tabbar/community/community' },
@@ -242,8 +260,8 @@ const tools = computed(() => {
 const menus = computed(() => [
   { name: '身份与权限', icon: 'users', value: roleTag.value, path: '/pages/role/switch' },
   { name: '识图记录', icon: 'camera', value: '', path: '/pages/scan/history' },
-  { name: '帮助与反馈', icon: 'comment', value: '' },
-  { name: '关于湘农汇', icon: 'leaf', value: 'v1.0.0' },
+  { name: '帮助与反馈', icon: 'comment', value: '', path: '/pages/profile/help' },
+  { name: '关于湘农汇', icon: 'leaf', value: 'v1.0.0', path: '/pages/profile/about' },
   { name: '设置', icon: 'setting', value: '', path: '/pages/profile/settings' }
 ])
 
@@ -253,14 +271,15 @@ function go(url) {
 }
 
 function onTool(t) {
-  if (t.path.startsWith('/pages/tabbar')) return uni.reLaunch({ url: t.path })
-  if (t.path) return uni.navigateTo({ url: t.path })
-  toast('功能演示：' + t.name)
+  if (!t.path) return toast(t.name + ' 正在接入')
+  if (t.path.indexOf('/pages/tabbar') === 0) return uni.reLaunch({ url: t.path })
+  uni.navigateTo({ url: t.path })
 }
 
 function onMenu(m) {
-  if (m.path) return uni.navigateTo({ url: m.path })
-  toast('功能演示：' + m.name)
+  if (!m.path) return toast(m.name + ' 正在接入')
+  if (m.path.indexOf('/pages/tabbar') === 0) return uni.reLaunch({ url: m.path })
+  uni.navigateTo({ url: m.path })
 }
 
 onShow(() => {
@@ -315,12 +334,27 @@ onShow(() => {
 .avatar {
   width: 128rpx;
   height: 128rpx;
-  border-radius: 40rpx;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 10rpx 24rpx rgba(4, 90, 58, 0.18);
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.bio {
+  display: block;
+  font-size: 21rpx;
+  color: rgba(255, 255, 255, 0.62);
+  margin-top: 6rpx;
+  max-width: 400rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .avatar-emoji {
   font-size: 68rpx;

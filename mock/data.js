@@ -16,14 +16,14 @@
 
 
 export const CATEGORIES = [
-  { id: 'veg', name: '时令蔬菜', emoji: '🥬', bg: ['#E7F8EE', '#D3F1E1'] },
-  { id: 'fruit', name: '应季水果', emoji: '🍊', bg: ['#FFF0E6', '#FFE0CE'] },
-  { id: 'tea', name: '湘茶茶叶', emoji: '🍵', bg: ['#E9F5EC', '#D8EBDD'] },
-  { id: 'cured', name: '腊味山货', emoji: '🥓', bg: ['#FDEFE9', '#FBE0D4'] },
-  { id: 'pickle', name: '坛子剁椒', emoji: '🌶️', bg: ['#FFEDEA', '#FFD2CB'] },
-  { id: 'grain', name: '粮油米面', emoji: '🌾', bg: ['#FBF4E3', '#F5E7C8'] },
-  { id: 'mushroom', name: '菌菇干货', emoji: '🍄', bg: ['#F5EDE5', '#EBDCCB'] },
-  { id: 'help', name: '助农专区', emoji: '❤️', bg: ['#FFEFF2', '#FFD9E1'] }
+  { id: 'veg', name: '时令蔬菜', emoji: '🥬', bg: ['#E7F8EE', '#D3F1E1'], img: '/static/products/p1.jpg' },
+  { id: 'fruit', name: '应季水果', emoji: '🍊', bg: ['#FFF0E6', '#FFE0CE'], img: '/static/products/p7.jpg' },
+  { id: 'tea', name: '湘茶茶叶', emoji: '🍵', bg: ['#E9F5EC', '#D8EBDD'], img: '/static/products/p14.jpg' },
+  { id: 'cured', name: '腊味山货', emoji: '🥓', bg: ['#FDEFE9', '#FBE0D4'], img: '/static/products/p16.jpg' },
+  { id: 'pickle', name: '坛子剁椒', emoji: '🌶️', bg: ['#FFEDEA', '#FFD2CB'], img: '/static/products/p19.jpg' },
+  { id: 'grain', name: '粮油米面', emoji: '🌾', bg: ['#FBF4E3', '#F5E7C8'], img: '/static/products/p20.jpg' },
+  { id: 'mushroom', name: '菌菇干货', emoji: '🍄', bg: ['#F5EDE5', '#EBDCCB'], img: '/static/images/misc/mushroom.jpg' },
+  { id: 'help', name: '助农专区', emoji: '❤️', bg: ['#FFEFF2', '#FFD9E1'], img: '/static/images/misc/harvest.jpg' }
 ]
 
 export const FARMS = [
@@ -31,6 +31,7 @@ export const FARMS = [
     id: 'f1',
     name: '张婶的辣椒地',
     avatar: '🧑‍🌾',
+    photo: '/static/images/misc/chili-field.jpg',
     bg: ['#FFE2CF', '#FFB48A'],
     city: '湖南 · 湘西龙山',
     summary: '武陵山区坡地种植，山泉水灌溉。张婶种了 26 年辣椒，只施农家肥，辣椒晒足 7 个太阳。',
@@ -44,6 +45,7 @@ export const FARMS = [
     id: 'f2',
     name: '永兴橙园老李',
     avatar: '👨‍🌾',
+    photo: '/static/images/home/banner-season.jpg',
     bg: ['#FFE9C4', '#FFC46B'],
     city: '湖南 · 郴州永兴',
     summary: '便江两岸的冰糖橙老园，树龄 18 年。霜降后采摘，糖度稳定在 14 以上，坏果包赔。',
@@ -57,6 +59,7 @@ export const FARMS = [
     id: 'f3',
     name: '安化黑茶社',
     avatar: '🍵',
+    photo: '/static/images/profile/header.jpg',
     bg: ['#DDE9DA', '#A9C7A4'],
     city: '湖南 · 益阳安化',
     summary: '资江边的老茶号，坚持七星灶烘焙、千两茶手工踩制。每一饼都有溯源码，可查山头与年份。',
@@ -70,6 +73,7 @@ export const FARMS = [
     id: 'f4',
     name: '湘西腊味坊',
     avatar: '👩‍🍳',
+    photo: '/static/images/misc/cured-meat.jpg',
     bg: ['#F6DCD2', '#D9A08C'],
     city: '湖南 · 湘西凤凰',
     summary: '苗家吊脚楼下的老灶房，柴火慢熏 40 天。只用本地黑猪后腿，无亚硝酸盐。',
@@ -83,6 +87,7 @@ export const FARMS = [
     id: 'f5',
     name: '炎陵黄桃合作社',
     avatar: '🧑‍🌾',
+    photo: '/static/images/misc/peach.jpg',
     bg: ['#FFEFD6', '#FFCB7D'],
     city: '湖南 · 株洲炎陵',
     summary: '海拔 800 米高山黄桃，昼夜温差 12℃。合作社 43 户果农，统一分级、统一发货。',
@@ -238,9 +243,24 @@ export const PRODUCTS = [
 ]
 
 export const BANNERS = [
-  { id: 'b1', title: '湘西现摘 · 当日发出', subtitle: '从武陵山到餐桌只要 24 小时', emoji: '🌶️', bg: ['#22C98A', '#0AA868'], linkUrl: '' },
-  { id: 'b2', title: '永兴冰糖橙尝鲜季', subtitle: '霜降后采摘，糖度 14 以上', emoji: '🍊', bg: ['#FFB65C', '#F58A3C'], linkUrl: '' },
-  { id: 'b3', title: '助农专场 · 坏果包赔', subtitle: '炎陵黄桃 3kg 只要 59', emoji: '🍑', bg: ['#FF8A6A', '#F2543F'], linkUrl: '' }
+  {
+    id: 'b1', title: '湘西现摘 · 当日发出', subtitle: '从武陵山到餐桌只要 24 小时',
+    tag: '产地直发', img: '/static/images/home/banner-farm.jpg',
+    emoji: '🌶️', bg: ['#22C98A', '#0AA868'],
+    btn: '进农场看看', path: '/pages/farm/home?id=f1'
+  },
+  {
+    id: 'b2', title: '永兴冰糖橙尝鲜季', subtitle: '霜降后采摘，糖度 14 以上',
+    tag: '霜降头茬', img: '/static/images/home/banner-season.jpg',
+    emoji: '🍊', bg: ['#FFB65C', '#F58A3C'],
+    btn: '去橙园', path: '/pages/farm/home?id=f2'
+  },
+  {
+    id: 'b3', title: '助农专场 · 坏果包赔', subtitle: '炎陵黄桃 3kg 只要 59',
+    tag: '今日特惠', img: '/static/images/home/banner-help.jpg',
+    emoji: '🍑', bg: ['#FF8A6A', '#F2543F'],
+    btn: '逛助农专区', path: '/pages/tabbar/category/category?cat=help'
+  }
 ]
 
 export const QUICK_ENTRIES = [
@@ -538,3 +558,86 @@ export const DEFAULT_ADOPTIONS = [
     remark: '', createdAt: '2026-06-01 09:30'
   }
 ]
+
+
+/* ---------------- 商品评价 ----------------
+ * productId 为空的是「通用评价」，商品没有专属评价时兜底用，
+ * 免得评价区出现「暂无评价」的空白页。
+ */
+export const DEFAULT_REVIEWS = [
+  {
+    id: 'rv1', productId: 'p1', user: '阿杏', avatar: '👩', level: 3,
+    stars: 5, text: '第三次买了，叶子还是很嫩，晚上炒了一盘，孩子说比菜市场的香。包装里有冰袋，到的时候还是凉的。',
+    tags: ['新鲜', '分量足'], imgs: ['🥬'], spec: '500g／份',
+    time: '2026-11-10', likes: 42, anonymous: false
+  },
+  {
+    id: 'rv2', productId: 'p1', user: '小城故事', avatar: '🧑‍💼', level: 2,
+    stars: 5, text: '顺丰次日到，很新鲜。唯一小建议：袋子可以少用一点。',
+    tags: ['包装好'], imgs: [], spec: '500g／份',
+    time: '2026-11-08', likes: 18, anonymous: false
+  },
+  {
+    id: 'rv3', productId: 'p1', user: '种菜的小周', avatar: '🧑', level: 5,
+    stars: 4, text: '味道不错，就是这次个头偏小，可能季节原因。客服补了两把，态度很好。',
+    tags: [], imgs: [], spec: '500g／份',
+    time: '2026-11-06', likes: 9, anonymous: false
+  },
+  {
+    id: 'rv4', productId: 'p7', user: '橘子和猫', avatar: '👩‍🦰', level: 4,
+    stars: 5, text: '辣椒晒得很干，闻着就香。用来做剁椒刚好，坛子起了一层红油。',
+    tags: ['新鲜', '会回购'], imgs: ['🌶️'], spec: '250g／份',
+    time: '2026-11-09', likes: 66, anonymous: false
+  },
+  {
+    id: 'rv5', productId: 'p13', user: '老谭', avatar: '🧔', level: 2,
+    stars: 5, text: '橙子糖度确实高，剥开满手都是汁。给爸妈寄了一箱，说比超市的甜。',
+    tags: ['甜', '分量足'], imgs: ['🍊'], spec: '5 斤／箱',
+    time: '2026-11-07', likes: 31, anonymous: false
+  },
+  {
+    id: 'rv6', productId: 'p16', user: '半夏', avatar: '👩‍🍳', level: 5,
+    stars: 5, text: '黄桃脆甜，收到时一个都没坏。冰镇后更好吃，家里小孩一次吃了两个。',
+    tags: ['新鲜', '包装好'], imgs: ['🍑'], spec: '3kg／箱',
+    time: '2026-11-05', likes: 52, anonymous: false
+  },
+  {
+    id: 'rv7', productId: 'p17', user: '米饭杀手', avatar: '🧑‍🌾', level: 3,
+    stars: 5, text: '腊肉肥瘦合适，蒸出来油亮。湘西的做法确实不一样，烟熏味很正。',
+    tags: ['味道正', '会回购'], imgs: ['🥓'], spec: '500g／份',
+    time: '2026-10-30', likes: 74, anonymous: false
+  },
+  {
+    id: 'rv8', productId: 'p18', user: '一勺糖', avatar: '👧', level: 1,
+    stars: 4, text: '剁椒很下饭，就是对我来说有点咸。拌面的时候少放半勺刚好。',
+    tags: [], imgs: [], spec: '350g／瓶',
+    time: '2026-10-29', likes: 12, anonymous: false
+  },
+  {
+    id: 'rv9', productId: 'p19', user: '', avatar: '🙂', level: 2,
+    stars: 5, text: '干菌泡发后很干净，没有沙子。炖了一锅鸡汤，鲜味足。',
+    tags: ['干净', '分量足'], imgs: [], spec: '150g／袋',
+    time: '2026-11-11', likes: 8, anonymous: true
+  },
+  {
+    id: 'rv10', productId: 'p20', user: '湘江边', avatar: '🧑‍💻', level: 3,
+    stars: 5, text: '米是新米，煮出来很香，粒粒分明。家里老人说像小时候吃的。',
+    tags: ['新鲜', '会回购'], imgs: ['🌾'], spec: '5kg／袋',
+    time: '2026-11-03', likes: 27, anonymous: false
+  },
+  {
+    id: 'rv11', productId: '', user: '小鹿', avatar: '🦌', level: 4,
+    stars: 5, text: '发货快，包装扎实，菜叶一点没压坏。这种产地直发比超市新鲜太多。',
+    tags: ['包装好', '送货快'], imgs: [], spec: '',
+    time: '2026-11-12', likes: 15, anonymous: false
+  },
+  {
+    id: 'rv12', productId: '', user: '阿禾', avatar: '🌱', level: 2,
+    stars: 4, text: '整体满意，希望以后能标注采摘日期，看得更明白。',
+    tags: [], imgs: [], spec: '',
+    time: '2026-11-04', likes: 6, anonymous: false
+  }
+]
+
+/** 评价可选的快捷标签，评价页和展示页共用一份，避免两边对不上 */
+export const REVIEW_TAGS = ['新鲜', '分量足', '包装好', '送货快', '味道正', '甜', '干净', '会回购']

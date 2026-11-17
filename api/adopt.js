@@ -19,13 +19,52 @@ import {
   ADOPT_LOGS_DEFAULT,
   findFarm
 } from '@/mock/index.js'
+import { MY_PLOTS, ADOPT_INS } from './farm-side.js'
 
 export { ADOPT_PLOTS, ADOPT_CROPS, ADOPT_PLANS, ADOPT_CYCLES }
 
 /* ---------------- 基础查询 ---------------- */
 
+/**
+ * 农户自己发布的地块
+ *
+ * 这些地块原本只在农户端可见，认养大厅看不到，买家认了也查不到详情，
+ * 闭环是断的。这里把它们接进同一套查询，让「农户发布 → 买家认养」成立。
+ *
+ * 读 storage 是为了拿到农户本次会话里新发布的地块（还没进 MY_PLOTS）。
+ * 接后端后这段整体删掉，改成 GET /plots/:id。
+ */
+function farmSidePlots() {
+  let custom = []
+  try {
+    const raw = uni.getStorageSync('nh_farmside_v1')
+    if (raw && Array.isArray(raw.customPlots)) custom = raw.customPlots
+  } catch (e) {}
+
+  return MY_PLOTS.concat(custom).map((p) => {
+    const booked = ADOPT_INS.filter(
+      (i) => i.plotId === p.id && (i.status === 'active' || i.status === 'ending')
+    ).length
+    const capacity = Number(p.capacity || 0)
+    return {
+      ...p,
+      mine: true,
+      farmId: p.farmId || 'me',
+      farmName: p.farmName || '湘西老周家庭农场',
+      marketPrice: p.marketPrice || Math.round(Number(p.price || 0) * 1.32),
+      adoptedCount: booked,
+      leftCount: Math.max(0, capacity - booked),
+      rating: p.rating || 4.9
+    }
+  })
+}
+
 export function findPlot(plotId) {
-  return ADOPT_PLOTS.find((p) => p.id === plotId) || null
+  return (
+    ADOPT_PLOTS.find((p) => p.id === plotId) ||
+    farmSidePlots().find((p) => p.id === plotId) ||
+    null
+  )
 }
 
 export function findCrop(cropId) {
@@ -43,9 +82,12 @@ export function cycleOf(key) {
 /** 给地块补上农场信息、可种作物对象、是否满员 */
 export function plotView(plot) {
   if (!plot) return null
+  const farm = plot.farmName
+    ? { id: plot.farmId || 'me', name: plot.farmName, avatar: '🌾', bg: plot.bg, city: '湖南 · 湘西龙山' }
+    : findFarm(plot.farmId) || {}
   return {
     ...plot,
-    farm: findFarm(plot.farmId) || {},
+    farm,
     cropList: plot.crops.map(findCrop).filter(Boolean),
     full: plot.leftCount <= 0,
     few: plot.leftCount > 0 && plot.leftCount <= 3
@@ -58,11 +100,18 @@ export function plotView(plot) {
  */
 export function listPlots(filter = {}) {
   const { farmId = 'all', area = 'all' } = filter
-  return ADOPT_PLOTS.filter((p) => {
+  const platform = ADOPT_PLOTS.filter((p) => {
     if (farmId !== 'all' && p.farmId !== farmId) return false
     if (area !== 'all' && Number(p.area) !== Number(area)) return false
     return true
-  }).map(plotView)
+  })
+  // 农户自己发布的、还在招募且有名额的地块，也进大厅
+  const own = farmSidePlots().filter((p) => {
+    if (p.status !== 'recruiting' || p.leftCount <= 0) return false
+    if (area !== 'all' && Number(p.area) !== Number(area)) return false
+    return true
+  })
+  return platform.concat(own).map(plotView)
 }
 
 /** 大厅筛选项：农场来自地块实际用到的农场，面积取去重升序 */

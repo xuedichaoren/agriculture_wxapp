@@ -20,7 +20,10 @@
           :class="{ on: active === c.id }"
           @tap="active = c.id"
         >
-          <text class="side-emoji">{{ c.emoji }}</text>
+          <view class="side-thumb">
+            <image v-if="c.img" class="side-img" :src="c.img" mode="aspectFill" />
+            <text v-else class="side-emoji">{{ c.emoji }}</text>
+          </view>
           <text class="side-name">{{ c.name }}</text>
         </view>
       </scroll-view>
@@ -28,8 +31,11 @@
       <scroll-view scroll-y class="main no-scrollbar">
         <view class="main-head">
           <view class="mh-left">
-            <text class="mh-title">{{ currentCat.name }}</text>
-            <text class="mh-sub">产地直发 · 共 {{ goods.length }} 款</text>
+            <image v-if="currentCat.img" class="mh-img" :src="currentCat.img" mode="aspectFill" />
+            <view class="mh-info">
+              <text class="mh-title">{{ currentCat.name }}</text>
+              <text class="mh-sub">产地直发 · 共 {{ goods.length }} 款</text>
+            </view>
           </view>
           <view class="sort" @tap="toggleSort">
             <text class="sort-txt" :class="{ on: sort !== 'default' }">{{ sortLabel }}</text>
@@ -62,6 +68,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { CATEGORIES, PRODUCTS } from '@/mock/index.js'
 import { addToCart } from '@/store/index.js'
 import { toast } from '@/common/utils.js'
@@ -76,6 +83,12 @@ const active = ref('veg')
 const sort = ref('default')
 const subTag = ref('全部')
 const subTags = ['全部', '当日采摘', '产地直供', '特价', '有机']
+
+// 从首页 banner / 快捷入口带分类进来，直接定位
+onLoad((q) => {
+  const cat = q && q.cat
+  if (cat && CATEGORIES.some((c) => c.id === cat)) active.value = cat
+})
 
 const currentCat = computed(() => CATEGORIES.find((c) => c.id === active.value) || CATEGORIES[0])
 
@@ -178,6 +191,21 @@ function onAdd(p) {
   border-radius: 0 6rpx 6rpx 0;
   background: #0fc97a;
 }
+.side-thumb {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(22, 60, 45, 0.08);
+}
+.side-img {
+  width: 100%;
+  height: 100%;
+}
 .side-emoji {
   font-size: 32rpx;
   opacity: 0.7;
@@ -203,6 +231,22 @@ function onAdd(p) {
   align-items: flex-end;
   justify-content: space-between;
   padding: 26rpx 24rpx 16rpx;
+}
+.mh-left {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.mh-info {
+  display: flex;
+  flex-direction: column;
+}
+.mh-img {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  box-shadow: 0 6rpx 16rpx rgba(22, 60, 45, 0.1);
 }
 .mh-title {
   font-size: 30rpx;

@@ -35,7 +35,7 @@
           <text class="h-t">改价、改库存、上下架都在这里，改完立即对买家生效</text>
         </view>
 
-        <view v-for="p in products" :key="p.id" class="goods">
+        <view v-for="p in products" :key="p.id" class="goods" @longpress="onLongPress(p)">
           <view class="g-top">
             <view class="g-img">
               <text class="g-emoji">{{ p.emoji }}</text>
@@ -43,6 +43,7 @@
             <view class="flex1">
               <view class="g-name-row">
                 <text class="g-name">{{ p.name }}</text>
+                <text v-if="p.selfMade" class="g-self">自建</text>
                 <text class="g-st" :class="{ off: !isOn(p.id) }">{{ isOn(p.id) ? '在售' : '已下架' }}</text>
               </view>
               <text class="g-spec">{{ p.spec }} · 已售 {{ p.salesCount }}</text>
@@ -64,7 +65,7 @@
           <text class="ag-plus">＋</text>
           <view class="flex1">
             <text class="ag-t">上架新商品</text>
-            <text class="ag-s">拍张照片，填价格和库存，发布到产地直采</text>
+            <text class="ag-s">填名称、价格和库存，上架后就能改价改库存</text>
           </view>
           <icon-svg name="right" :size="22" color="#C3CCC8" />
         </view>
@@ -145,6 +146,7 @@ import {
   myProducts,
   persistSell,
   priceOf,
+  removeProduct,
   setPrice,
   setStock,
   stockOf,
@@ -253,10 +255,23 @@ function preview(p) {
 }
 
 function addGoods() {
+  uni.navigateTo({ url: '/pages/farm/product-new' })
+}
+
+/** 只有农户自己建的商品能删，mock 商品删了会破页面 */
+function onLongPress(p) {
+  if (!p.selfMade) return
   uni.showModal({
-    title: '上架新商品',
-    content: '演示版暂未开放新建商品表单，接入后端后走「拍照 → 填价格库存 → 提交审核」。',
-    showCancel: false
+    title: '删除这个商品',
+    content: '「' + p.name + '」删除后买家就看不到了，已经产生的订单不受影响。',
+    confirmText: '删除',
+    confirmColor: '#FF5A4E',
+    success: (r) => {
+      if (!r.confirm) return
+      removeProduct(p.id)
+      tick.value++
+      toast('已删除')
+    }
   })
 }
 
@@ -365,6 +380,14 @@ function toOrders() {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+.g-self {
+  font-size: 16rpx;
+  color: #4a8cff;
+  background: #eaf3ff;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  margin-right: 6rpx;
 }
 .g-st {
   font-size: 17rpx;

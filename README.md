@@ -1,6 +1,6 @@
 # 农汇（湘农汇）· 产地直采生鲜 App
 
-基于 **uni-app（Vue 3 + Vite 5 + Sass）** 实现的生鲜农产品电商 App，共 **54 个页面**，覆盖商城、认养、识图诊断、专家问诊与三种身份，可直接用 HBuilderX 打包为 Android / iOS 原生 App。
+基于 **uni-app（Vue 3 + Vite 5 + Sass）** 实现的生鲜农产品电商 App，共 **65 个页面**，覆盖商城、认养（含农户被认养）、识图诊断、专家问诊、农事天气与三种身份，可直接用 HBuilderX 打包为 Android / iOS 原生 App。
 
 > **工程规范（前后端分工必读）**：[`docs/`](./docs/README.md)
 > 命名规范 · 数据字典 · 接口契约 · 分工协作，四份文档与代码/数据库保持同步。
@@ -11,10 +11,11 @@
 
 | 项目 | 数值 |
 | --- | --- |
-| 页面数量 | 54 |
+| 页面数量 | 65 |
 | 第三方 UI 库 | 0（自建 11 个 `ui-*` 基础组件 + 7 个业务组件） |
-| 插图槽 | 16 处（`common/assets.js` 声明，其中 6 处已挂载页面，其余待接入） |
-| 位图资源 | 0（图标为内联 SVG，商品图为 CSS 渐变 + 系统 Emoji） |
+| 插图槽 | 16 处（`common/assets.js` 声明，9 处已出图，其中 6 处页面已挂载） |
+| 外部服务 | 3 类可插拔：作物识别（Pl@ntNet / 百度）、病害模型（自建 endpoint）、天气（心知天气 / Open-Meteo / 和风）；均有本地兜底 |
+| 位图资源 | 35 张实拍照片（947 KB，含 20 张商品封面）+ 12 个 tabbar 图标；图标仍为内联 SVG |
 | H5 构建产物 | 815 KB（89 个文件） |
 | 预估 APK 体积 | **9～13 MB**（远低于 100 MB 限制） |
 
@@ -22,7 +23,12 @@
 
 1. **不引 UI 库**：uni-ui / uview 动辄 2～4 MB，本项目用自写组件替代。
 2. **不引图标字体**：`icon-svg.vue` 用 SVG path 直接画，按颜色/线宽动态渲染，零额外文件。
-3. **不引商品图**：`prod-img.vue` 用「双渐变 + 光斑 + Emoji」合成商品缩略图。换成真实图片时只改这一个组件，业务代码不动。
+3. **商品图只用实拍、且压到能用就行**：20 张封面压到 440×330 / JPEG q46（单张 14~45 KB），
+   页面只改 `mock/data.js` 的 `coverUrl`，`prod-img.vue` 不用动。
+   没图的商品会自动退回「双渐变 + 光斑 + Emoji」占位，不会出现裂图。
+
+照片全部来自维基共享资源（CC 许可，非 AI 生成），逐张署名见 [docs/10](./docs/10-图片来源.md)。
+`static/` 现在约 1.1 MB，主包 2 MB 是硬上限——正式发布前把这些图挪到云存储/CDN 更稳妥。
 
 ---
 
@@ -71,6 +77,7 @@ UNI_INPUT_DIR=$PWD UNI_PLATFORM=mp-weixin \
 | 订单列表 | `pages/order/list` | 全部/待付款/待发货/待收货/已完成 多状态 |
 | 订单详情 | `pages/order/detail` | 状态时间轴、地址、商品、金额明细、订单号复制、操作按钮 |
 | 物流详情 | `pages/order/logistics` | 快递单号、运输节点时间轴、本单商品、联系客服 |
+| 评价晒单 | `pages/order/review` | 整单星级 + 新鲜度/包装/配送三项、快捷标签、匿名开关，提交后商品页即时可见 |
 
 ### 地址
 | 页面 | 路径 | 说明 |
@@ -115,6 +122,8 @@ UNI_INPUT_DIR=$PWD UNI_PLATFORM=mp-weixin \
 | 我的 | `pages/tabbar/profile/profile` | 绿色头部、订单四态入口、我的农场/地块、资产、工具网格、菜单 |
 | 我的收藏 | `pages/profile/favorite` | 商品收藏 / 浏览足迹 双 Tab |
 | 优惠券 | `pages/profile/coupon` | 可用/已用过期、面额卡、使用说明、选择模式回传 |
+| 帮助与反馈 | `pages/profile/help` | 14 条常见问题按分组折叠、三类客服入口、意见反馈表单 |
+| 关于湘农汇 | `pages/profile/about` | 品牌介绍、三种身份说明、用户协议与隐私政策全文 |
 | 设置 | `pages/profile/settings` | 地址、版本、通知开关、清除缓存、隐私政策、退出登录 |
 
 ### 三种身份
@@ -144,8 +153,19 @@ UNI_INPUT_DIR=$PWD UNI_PLATFORM=mp-weixin \
 ### 农户侧
 | 页面 | 路径 | 说明 |
 | --- | --- | --- |
-| 农户工作台 | `pages/farm/workbench` | 天气、今日待办、地块横滑、8 宫格农事工具、收成速览 |
-| 我的售卖 | `pages/farm/sell` | 商品改价 / 改库存 / 上下架、订单发货 |
+| 农户工作台 | `pages/farm/workbench` | **被认养视角**：招募中地块 / 待确认申请 / 本月认养收入 / 待发货，天气卡接实时数据与农事指数 |
+| 农事任务 | `pages/farm/tasks` | 今日托管清单，勾选完成、按类型给操作要点、一键发长势 |
+| 我的地（被认养） | `pages/farm/plots` | 农户 tab 第 2 项。地块列表、认养名额进度、认养人头像堆叠、暂停招募、本月收入 |
+| 地块认养管理 | `pages/farm/plot-manage` | 调名额与价格、认养申请通过/婉拒、认养人名单、发长势推送、农事记录 |
+| 被认养订单 | `pages/farm/adopt-in` | 认养申请 / 在养 / 已结束 三个 Tab，含记配送、联系认养人 |
+| 发布地块 | `pages/farm/plot-new` | 七项表单 + 实时预览，发布后自动进认养大厅 |
+| 农事天气 | `pages/farm/weather` | 今日 + 多日预报（心知 3 天 / Open-Meteo 7 天）、打药/灌溉/采收/晾晒四项农事指数、每条都带理由的农事建议 |
+| 上架新商品 | `pages/farm/product-new` | 名称/分类/图标/价格/库存/卖点/标签/详情，边填边看预览卡片 |
+| 我的售卖 | `pages/farm/sell` | 商品改价 / 改库存 / 上下架、长按删除自建商品、订单发货 |
+
+> **认养方向说明**：农户是**被认养**的一方。原来的「我的地」错接到买家的「我的认养」页，
+> 工作台还在引导农户「认养新地块」，已整体反转。数据模型见
+> [docs/09](./docs/09-被认养与农事天气.md)。
 
 ---
 
@@ -189,7 +209,7 @@ UNI_INPUT_DIR=$PWD UNI_PLATFORM=mp-weixin \
 ```
 agriculture_app/
 ├── src/
-│   ├── pages/                # 38 个页面
+│   ├── pages/                # 65 个页面
 │   │   ├── splash/ onboarding/ login/
 │   │   ├── tabbar/{home,category,cart,community,profile}/
 │   │   ├── search/ product/ order/ address/
@@ -217,13 +237,18 @@ agriculture_app/
 
 ## 六、接后端要改哪里
 
-当前是**纯前端可跑通**的完整业务流，数据来自 `src/common/data.js`（内存 mock）+ `uni.setStorageSync`（持久化）。接真实接口时按下面三处替换即可：
+当前是**纯前端可跑通**的完整业务流，数据来自 `mock/`（内存 mock）+ `uni.setStorageSync`（持久化）。接真实接口时按下面几处替换即可：
 
 | 位置 | 现状 | 改法 |
 | --- | --- | --- |
-| `src/store/index.js` | 同步函数直接改内存 | 换成 `uni.request`，把 `addToCart`/`createOrder`/`payOrder` 等改成 `async`，页面里 `await` 一下即可（调用点已经是普通函数调用，加 `await` 不破坏结构） |
-| `src/pages/login/login.vue` | `sendCode` / `doLogin` 用定时器模拟 | 换成短信与登录接口，`login(phone)` 传真实 token |
-| `src/pages/order/confirm.vue` | 「支付」直接置为已支付 | 换成 `uni.requestPayment`（微信/支付宝），回调里再调 `payOrder` |
+| `store/index.js` | 同步函数直接改内存 | 换成 `uni.request`，把 `addToCart`/`createOrder`/`payOrder` 等改成 `async`，页面里 `await` 一下即可（调用点已经是普通函数调用，加 `await` 不破坏结构） |
+| `pages/login/login.vue` | 微信登录用 `uni.login` 拿 code 后本地发 token | 把 code 发给自己的服务端换 openid + token，走 `setLoginSession(profile)` 落盘 |
+| `pages/order/confirm.vue` | 「支付」直接置为已支付 | 换成 `uni.requestPayment`（微信/支付宝），回调里再调 `payOrder` |
+| `api/farm-side.js` + `store/farm-side.js` | 农户地块与申请走本地种子数据 | 按 [docs/09 §8](./docs/09-被认养与农事天气.md) 的接口表逐个替换，函数签名不用改 |
+| `api/weather.js` | 直连心知天气（私钥在端上，已有 open-meteo 兜底） | 配 `weatherConfig.proxy` 走自己的 `/api/weather`，key 留服务端；`fromProxy()` 已写好 |
+| `api/diagnose.js` + `api/plant-id.js` | 端侧特征 + 本地候选 | `setDiagnoseConfig({ endpoint })` / `setPlantIdConfig({ endpoint })` 指向自建模型服务，页面不用动 |
+
+**小程序后台要配的三类域名**：`request` 合法域名加 `https://api.seniverse.com` 与 `https://api.open-meteo.com`（用和风再加 `https://devapi.qweather.com`）；作物识别若直连 Pl@ntNet 加 `https://my-api.plantnet.org`；病害模型 endpoint 用自建域名。没配也不会崩，会静默降级到本地兜底并在界面上标注。
 
 图片替换有两条路：
 

@@ -48,12 +48,12 @@
           <text class="r-value">{{ cacheSize }}</text>
           <icon-svg name="right" :size="22" color="#C3CCC8" />
         </view>
-        <view class="row-item" @tap="toast('隐私政策（演示）')">
+        <view class="row-item" @tap="go('/pages/profile/about?tab=privacy')">
           <icon-svg name="order" :size="32" color="#3D4A45" :stroke="1.7" />
           <text class="r-name">隐私政策</text>
           <icon-svg name="right" :size="22" color="#C3CCC8" />
         </view>
-        <view class="row-item" @tap="toast('用户协议（演示）')">
+        <view class="row-item" @tap="go('/pages/profile/about?tab=terms')">
           <icon-svg name="leaf" :size="32" color="#3D4A45" :stroke="1.7" />
           <text class="r-name">用户协议</text>
           <icon-svg name="right" :size="22" color="#C3CCC8" />

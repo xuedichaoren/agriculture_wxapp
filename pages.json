@@ -122,6 +122,13 @@
       }
     },
     {
+      "path": "pages/order/review",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
       "path": "pages/order/logistics",
       "style": {
         "navigationStyle": "custom",
@@ -213,6 +220,27 @@
     },
     {
       "path": "pages/profile/coupon",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/help",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/about",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/profile/edit",
       "style": {
         "navigationStyle": "custom",
         "backgroundColor": "#F4F8F5"
@@ -373,6 +401,13 @@
       }
     },
     {
+      "path": "pages/farm/tasks",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
       "path": "pages/farm/workbench",
       "style": {
         "navigationStyle": "custom",
@@ -381,6 +416,48 @@
     },
     {
       "path": "pages/farm/sell",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/plots",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/plot-manage",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/adopt-in",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/product-new",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/plot-new",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8F5"
+      }
+    },
+    {
+      "path": "pages/farm/weather",
       "style": {
         "navigationStyle": "custom",
         "backgroundColor": "#F4F8F5"

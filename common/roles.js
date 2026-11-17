@@ -41,16 +41,16 @@ export const ROLES = {
     color: '#E08A2B',
     soft: '#FFF3E2',
     home: '/pages/farm/workbench',
-    desc: '管地块、上架农产品、处理订单，卖货和种地在一处',
+    desc: '把地块放出来给人认养、管认养人和托管进度，顺便上架卖货',
     tagline: '我有地，想把菜卖出去',
     tabs: [
       { key: 'work', name: '工作台', icon: 'sprout', path: '/pages/farm/workbench' },
-      { key: 'plots', name: '我的地', icon: 'leaf', path: '/pages/farm/my' },
+      { key: 'plots', name: '我的地', icon: 'leaf', path: '/pages/farm/plots' },
       { key: 'sell', name: '卖货', icon: 'shop', path: '/pages/farm/sell' },
       { key: 'community', name: '农友圈', icon: 'chat', path: '/pages/tabbar/community/community' },
       { key: 'mine', name: '我的', icon: 'user', path: '/pages/tabbar/profile/profile' }
     ],
-    features: ['地块管理', '商品上架', '订单处理', '收成登记']
+    features: ['地块被认养', '认养人管理', '商品上架', '订单处理']
   },
 
   expert: {

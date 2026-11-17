@@ -138,7 +138,8 @@
       </template>
       <template v-else>
         <view class="btn btn-line b1" @tap="again">再来一单</view>
-        <view class="btn btn-primary b2" @tap="toast('评价功能演示')">去评价</view>
+        <view v-if="reviewed" class="btn btn-line b2" @tap="viewReview">已评价</view>
+        <view v-else class="btn btn-primary b2" @tap="toReview">去评价</view>
       </template>
     </view>
   </view>
@@ -153,6 +154,7 @@ import {
   orderAmount,
   orderItems,
   payOrder,
+  reviewOfOrder,
   store
 } from '@/store/index.js'
 import { copyText, money, statusText, toast } from '@/common/utils.js'
@@ -250,6 +252,16 @@ function receive() {
 }
 function again() {
   uni.reLaunch({ url: '/pages/tabbar/cart/cart' })
+}
+const reviewed = computed(() => !!(order.value && reviewOfOrder(order.value.id)))
+function toReview() {
+  if (!order.value) return
+  uni.navigateTo({ url: '/pages/order/review?id=' + order.value.id })
+}
+function viewReview() {
+  const it = orderItems(order.value)[0]
+  if (!it) return toast('这笔订单的评价在商品页能看到')
+  uni.navigateTo({ url: '/pages/product/reviews?id=' + it.productId })
 }
 </script>
 

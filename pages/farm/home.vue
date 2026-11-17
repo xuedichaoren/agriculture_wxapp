@@ -10,14 +10,20 @@
           <icon-svg name="share" :size="30" color="#FFFFFF" :stroke="1.8" />
         </view>
       </view>
-      <text class="cover-emoji">{{ farm.avatar }}</text>
+      <image v-if="farm.photo" class="cover-img" :src="farm.photo" mode="aspectFill" />
+      <text v-else class="cover-emoji">{{ farm.avatar }}</text>
       <view class="cover-mask" />
+      <view class="cover-title">
+        <text class="ct-name">{{ farm.name }}</text>
+        <text class="ct-sub">{{ farm.city }}</text>
+      </view>
     </view>
 
     <view class="head-card">
       <view class="h-top">
         <view class="avatar" :style="{ background: `linear-gradient(150deg, ${farm.bg[0]}, ${farm.bg[1]})` }">
-          {{ farm.avatar }}
+          <image v-if="farm.photo" class="avatar-img" :src="farm.photo" mode="aspectFill" />
+          <text v-else>{{ farm.avatar }}</text>
         </view>
         <view class="flex1">
           <view class="row">
@@ -128,8 +134,8 @@
           <text class="st-text">{{ farm.summary }}</text>
           <text class="st-text">地块位于山坡南面，日照充足，用的是山上流下来的泉水灌溉。每年只用一次农家肥，不打催熟剂，所以长得慢，但味道是小时候的味道。</text>
           <view class="st-gallery">
-            <view v-for="e in ['🌄', '🥬', '🚜', '🌱']" :key="e" class="st-img" :style="{ background: `linear-gradient(150deg, ${farm.bg[0]}, ${farm.bg[1]})` }">
-              <text class="st-emoji">{{ e }}</text>
+            <view v-for="p in gallery" :key="p.id" class="st-img" @tap="toDetail(p.id)">
+              <image class="st-photo" :src="p.coverUrl" mode="aspectFill" />
             </view>
           </view>
         </view>
@@ -191,6 +197,7 @@ try {
 
 const farm = computed(() => findFarm(fid.value) || FARMS[0])
 const goods = computed(() => PRODUCTS.filter((p) => p.farmId === farm.value.id))
+const gallery = computed(() => goods.value.slice(0, 4))
 const tabs = ['在售商品', '农事记录', '农场故事']
 const active = ref('在售商品')
 const followed = ref(false)
@@ -277,13 +284,47 @@ function onAdd(p) {
   opacity: 0.95;
   filter: drop-shadow(0 16rpx 24rpx rgba(30, 70, 50, 0.2));
 }
+.cover-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.cover-title {
+  position: absolute;
+  left: 32rpx;
+  bottom: 80rpx;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+.ct-name {
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.35);
+}
+.ct-sub {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 8rpx;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.3);
+}
 .cover-mask {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(255, 255, 255, 0) 45%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.04) 40%,
+    rgba(10, 30, 22, 0.55) 100%
+  );
 }
 .head-card {
   background: #fff;
@@ -309,6 +350,13 @@ function onAdd(p) {
   justify-content: center;
   font-size: 64rpx;
   margin-top: -30rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 8rpx 22rpx rgba(22, 60, 45, 0.14);
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
 }
 .f-name {
   font-size: 34rpx;
@@ -531,9 +579,14 @@ function onAdd(p) {
   flex: 1;
   height: 160rpx;
   border-radius: 18rpx;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.st-photo {
+  width: 100%;
+  height: 100%;
 }
 .st-emoji {
   font-size: 66rpx;

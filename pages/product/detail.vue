@@ -16,8 +16,12 @@
     <scroll-view scroll-y class="body no-scrollbar" @scroll="onScroll">
       <!-- 主图 -->
       <view class="hero" :style="{ background: `linear-gradient(150deg, ${product.bg[0]}, ${product.bg[1]})` }">
-        <view class="hero-ring" />
-        <text class="hero-emoji">{{ product.emoji }}</text>
+        <image v-if="product.coverUrl" class="hero-img" :src="product.coverUrl" mode="aspectFill" />
+        <template v-else>
+          <view class="hero-ring" />
+          <text class="hero-emoji">{{ product.emoji }}</text>
+        </template>
+        <view v-if="product.coverUrl" class="hero-fade" />
         <view class="hero-tags">
           <view v-for="t in product.tags" :key="t" class="htag">{{ t }}</view>
         </view>
@@ -100,23 +104,27 @@
       <!-- 评价 -->
       <view class="card reviews">
         <view class="r-head">
-          <text class="r-title">评价（{{ product.salesCount > 1000 ? '1286' : '86' }}）</text>
+          <text class="r-title">评价（{{ rating.count }}）</text>
           <view class="row" @tap="go('/pages/product/reviews?id=' + product.id)">
-            <text class="r-more">好评率 98%</text>
+            <text class="r-more">好评率 {{ rating.good }}%</text>
             <icon-svg name="right" :size="20" color="#9AA7A1" />
           </view>
         </view>
-        <view v-for="r in reviews" :key="r.id" class="review">
+        <view v-for="r in reviewList" :key="r.id" class="review">
           <view class="r-top">
             <view class="r-avatar">{{ r.avatar }}</view>
-            <text class="r-user">{{ r.user }}</text>
+            <text class="r-user">{{ r.anonymous ? '匿名用户' : r.user }}</text>
             <view class="stars">
               <text v-for="i in 5" :key="i" class="star" :class="{ dim: i > r.stars }">★</text>
             </view>
-            <text class="r-time">{{ r.time }}</text>
+            <text class="r-time">{{ shortDate(r.time) }}</text>
           </view>
           <text class="r-text">{{ r.text }}</text>
+          <view v-if="r.tags && r.tags.length" class="r-tags">
+            <text v-for="t in r.tags" :key="t" class="r-tag">{{ t }}</text>
+          </view>
         </view>
+        <view v-if="!reviewList.length" class="r-empty">还没有评价，买过之后来说两句</view>
       </view>
 
       <!-- 详情 -->
@@ -223,7 +231,17 @@
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { findFarm, findProduct, PRODUCTS } from '@/mock/index.js'
-import { addToCart, addFootprint, cartCount, isFavorite, store, toggleFavorite } from '@/store/index.js'
+import { findMyProduct } from '@/store/sell.js'
+import {
+  addToCart,
+  addFootprint,
+  cartCount,
+  isFavorite,
+  ratingOfProduct,
+  reviewsOfProduct,
+  store,
+  toggleFavorite
+} from '@/store/index.js'
 import { formatCount } from '@/common/utils.js'
 
 const statusBar = ref(20)
@@ -237,7 +255,7 @@ onLoad((opts) => {
   if (opts && opts.id) productId.value = String(opts.id)
 })
 
-const product = computed(() => findProduct(productId.value) || PRODUCTS[0])
+const product = computed(() => findMyProduct(productId.value) || findProduct(productId.value) || PRODUCTS[0])
 const farm = computed(() => findFarm(product.value.farmId) || findFarm('f1'))
 
 const scrollTop = ref(0)
@@ -261,10 +279,15 @@ const skuPrice = computed(() => +(product.value.price * (1 + skus[skuIndex.value
 const favorited = computed(() => store.favorites.includes(product.value.id))
 const alsoLike = computed(() => PRODUCTS.filter((p) => p.id !== product.value.id && p.categoryId === product.value.categoryId).slice(0, 4))
 
-const reviews = [
-  { id: 'r1', user: '阿杏', avatar: '👩', stars: 5, time: '11-10', text: '第三次买了，叶子还是很嫩，晚上炒了一盘，孩子说比菜市场的香。' },
-  { id: 'r2', user: '小城故事', avatar: '🧑‍💼', stars: 5, time: '11-08', text: '包装很仔细，还带了冰袋。顺丰次日就到了，好评。' }
-]
+// 评价接真实数据：我写过的 + 种子评价，没有专属评价时用通用兜底
+const reviewList = computed(() => reviewsOfProduct(product.value.id).slice(0, 3))
+const rating = computed(() => ratingOfProduct(product.value.id))
+
+/** 2026-11-10 09:20 → 11-10 */
+function shortDate(t) {
+  const m = String(t || '').match(/^(\d{4})-(\d{2})-(\d{2})/)
+  return m ? m[2] + '-' + m[3] : t
+}
 
 function onScroll(e) {
   scrollTop.value = e.detail.scrollTop
@@ -384,6 +407,23 @@ addFootprint(productId.value)
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+.hero-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 180rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
 }
 .hero-ring {
   position: absolute;
@@ -577,6 +617,25 @@ addFootprint(productId.value)
 .reviews {
   margin: 20rpx 24rpx 0;
   padding: 24rpx;
+}
+.r-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+.r-tag {
+  font-size: 18rpx;
+  color: #06a96a;
+  background: #e9faf2;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+.r-empty {
+  font-size: 21rpx;
+  color: #b3bfba;
+  text-align: center;
+  padding: 26rpx 0;
 }
 .r-head {
   display: flex;

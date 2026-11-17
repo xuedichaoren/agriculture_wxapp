@@ -1,13 +1,5 @@
 import { reactive, computed } from 'vue'
-import {
-  PRODUCTS,
-  DEFAULT_CART,
-  DEFAULT_ORDERS,
-  DEFAULT_ADDRESSES,
-  COUPONS,
-  DEFAULT_ADOPTIONS,
-  findProduct
-} from '@/mock/index.js'
+import { PRODUCTS, DEFAULT_CART, DEFAULT_ORDERS, DEFAULT_ADDRESSES, COUPONS, DEFAULT_ADOPTIONS, findProduct, DEFAULT_REVIEWS } from '@/mock/index.js'
 import { fetchMe, fetchProfile } from '@/api/index.js'
 
 const KEY = 'nh_state_v1'
@@ -27,9 +19,14 @@ export const store = reactive({
   user: saved?.user || {
     nickname: '陈晓',
     avatar: '🧑',
+    avatarUrl: '',
     phone: '138****6620',
     level: '农场会员 · Lv.2',
-    points: 1280
+    points: 1280,
+    gender: 'secret',
+    birthday: '',
+    region: [],
+    bio: ''
   },
   cart: saved?.cart || DEFAULT_CART.map((i) => ({ ...i })),
   orders: saved?.orders || DEFAULT_ORDERS.map((o) => ({ ...o })),
@@ -37,6 +34,8 @@ export const store = reactive({
   coupons: saved?.coupons || COUPONS.map((c) => ({ ...c })),
   adoptions: saved?.adoptions || DEFAULT_ADOPTIONS.map((a) => ({ ...a })),
   favorites: saved?.favorites || ['p4', 'p13'],
+  // 买家写过的评价，和种子评价分开存，方便区分「我的评价」
+  reviews: saved?.reviews || [],
   footprint: saved?.footprint || ['p1', 'p4', 'p13', 'p18'],
   likedPosts: saved?.likedPosts || ['o2'],
   unread: saved?.unread ?? 3,
@@ -54,6 +53,18 @@ export function persist() {
 }
 
 /* ---------------- 用户 ---------------- */
+
+/** 更新个人资料（只在编辑页调用），返回合并后的 user */
+export function updateProfile(patch = {}) {
+  const allow = ['nickname', 'avatar', 'avatarUrl', 'gender', 'birthday', 'region', 'bio']
+  allow.forEach((k) => {
+    if (patch[k] !== undefined) store.user[k] = patch[k]
+  })
+  // 本地改过的资料优先，避免 onShow 的云端同步把它冲掉
+  store.user.profileEdited = true
+  persist()
+  return store.user
+}
 export function login(phone) {
   store.token = 'demo-token-' + Date.now()
   store.user.phone = phone ? phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : store.user.phone
@@ -298,8 +309,11 @@ export async function syncCloudUser() {
       p = await fetchProfile(me.userId)
     } catch (e) {}
     store.user.userId = me.userId
-    store.user.nickname = (p && p.nickname) || me.nickname || store.user.nickname
-    store.user.avatar = (p && p.avatar) || me.avatar || store.user.avatar
+    // 用户自己在编辑页改过，就别拿云端的默认昵称覆盖
+    if (!store.user.profileEdited) {
+      store.user.nickname = (p && p.nickname) || me.nickname || store.user.nickname
+      store.user.avatar = (p && p.avatar) || me.avatar || store.user.avatar
+    }
     if (p && p.city) store.user.city = p.city
     persist()
     return true
@@ -380,4 +394,85 @@ export function cancelAdoption(id) {
   a.nextDelivery = ''
   persist()
   return true
+}
+
+
+/* ---------------- 商品评价 ---------------- */
+
+/** 某个商品的全部评价：我写的排在前面，再补种子和通用兜底 */
+export function reviewsOfProduct(productId) {
+  if (!productId) return []
+  const mine = store.reviews.filter((r) => (r.productIds || []).indexOf(productId) > -1)
+  const seed = DEFAULT_REVIEWS.filter((r) => r.productId === productId)
+  const all = mine.concat(seed)
+  if (all.length) return all
+  // 没有专属评价时用通用评价兜底，页面不至于空着
+  return DEFAULT_REVIEWS.filter((r) => !r.productId)
+}
+
+/** 商品的评分概览：均分 / 条数 / 好评率 */
+export function ratingOfProduct(productId) {
+  const list = reviewsOfProduct(productId)
+  if (!list.length) return { avg: 0, count: 0, good: 0 }
+  const sum = list.reduce((x, r) => x + Number(r.stars || 0), 0)
+  const good = list.filter((r) => Number(r.stars) >= 4).length
+  return {
+    avg: Math.round((sum / list.length) * 10) / 10,
+    count: list.length,
+    good: Math.round((good / list.length) * 100)
+  }
+}
+
+/** 订单是否已评价 */
+export function reviewOfOrder(orderId) {
+  return store.reviews.find((r) => r.orderId === orderId) || null
+}
+
+/**
+ * 提交评价
+ * @param {string} orderId
+ * @param {{stars:number,scores:object,text:string,tags:string[],anonymous:boolean,imgs:string[]}} payload
+ * @returns {object|null} 新评价，重复评价返回 null
+ */
+export function addReview(orderId, payload = {}) {
+  const order = store.orders.find((o) => o.id === orderId)
+  if (!order) return null
+  if (reviewOfOrder(orderId)) return null
+  const stars = Math.min(5, Math.max(1, Number(payload.stars) || 5))
+  const anon = !!payload.anonymous
+  const item = {
+    id: 'rv' + Date.now(),
+    orderId,
+    productIds: order.items.map((i) => i.productId),
+    productId: '',
+    user: anon ? '' : store.user.nickname,
+    avatar: anon ? '🙂' : store.user.avatar,
+    level: 2,
+    stars,
+    scores: payload.scores || {},
+    text: String(payload.text || '').slice(0, 200),
+    tags: payload.tags || [],
+    imgs: payload.imgs || [],
+    spec: '',
+    time: nowText(),
+    likes: 0,
+    anonymous: anon
+  }
+  store.reviews.unshift(item)
+  order.isReviewed = true
+  order.reviewedAt = item.time
+  persist()
+  return item
+}
+
+/** 评价能否写：已完成且没评过 */
+export function canReview(order) {
+  if (!order || order.status !== 'done') return false
+  return !reviewOfOrder(order.id)
+}
+
+function nowText() {
+  const d = new Date()
+  const p = (x) => (x < 10 ? '0' + x : '' + x)
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
 }

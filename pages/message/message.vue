@@ -40,18 +40,39 @@
 import { computed, ref } from 'vue'
 import { MESSAGES } from '@/mock/index.js'
 import { store } from '@/store/index.js'
+import { pendingCount } from '@/store/expert.js'
 import { toast } from '@/common/utils.js'
 
 const list = ref(MESSAGES)
 const growingCount = computed(() => store.adoptions.filter((a) => a.status === 'growing').length)
 
-const entries = computed(() => [
-  { name: '订单通知', emoji: '📦', bg: '#eaf9f1', badge: 1, path: '/pages/order/list?tab=shipping' },
-  { name: '物流助手', emoji: '🚚', bg: '#eaf3ff', badge: 0, path: '/pages/order/logistics?id=NH20261109008' },
-  { name: '认养通知', emoji: '🌱', bg: '#eefaf3', badge: growingCount.value, path: '/pages/farm/my' },
-  { name: '优惠活动', emoji: '🎁', bg: '#fff4e4', badge: 2, path: '/pages/profile/coupon' },
-  { name: '农友互动', emoji: '💬', bg: '#f1eeff', badge: 0, path: '/pages/tabbar/community/community' }
-])
+const entries = computed(() => {
+  // 角标全部按真实数据算，不再写死数字
+  const unshipped = store.orders.filter((o) => o.status === 'unshipped').length
+  const waiting = store.orders.find((o) => o.status === 'shipping' || o.status === 'unreceipted')
+  const coupons = store.coupons.filter((c) => !c.isUsed).length
+  return [
+    {
+      name: '订单通知',
+      emoji: '📦',
+      bg: '#eaf9f1',
+      badge: unshipped,
+      path: '/pages/order/list?tab=unshipped'
+    },
+    {
+      name: '物流助手',
+      emoji: '🚚',
+      bg: '#eaf3ff',
+      badge: 0,
+      // 原来写死了一个不存在的单号（少个 X），点进去必然空
+      path: waiting ? '/pages/order/logistics?id=' + waiting.id : '/pages/order/list?tab=shipping'
+    },
+    { name: '认养通知', emoji: '🌱', bg: '#eefaf3', badge: growingCount.value, path: '/pages/farm/my' },
+    { name: '问诊通知', emoji: '🩺', bg: '#eaf7ff', badge: pendingCount(), path: '/pages/expert/qa' },
+    { name: '优惠活动', emoji: '🎁', bg: '#fff4e4', badge: coupons, path: '/pages/profile/coupon' },
+    { name: '农友互动', emoji: '💬', bg: '#f1eeff', badge: 0, path: '/pages/tabbar/community/community' }
+  ]
+})
 
 function onEntry(e) {
   if (e.path.startsWith('/pages/tabbar')) return uni.reLaunch({ url: e.path })
@@ -60,8 +81,9 @@ function onEntry(e) {
 
 function openChat(m) {
   if (m.type === 'system') {
-    if (m.name.includes('订单')) return uni.navigateTo({ url: '/pages/order/list?tab=all' })
-    return toast('系统通知详情（演示）')
+    if (m.name.indexOf('订单') > -1) return uni.navigateTo({ url: '/pages/order/list?tab=all' })
+    if (m.name.indexOf('活动') > -1) return uni.navigateTo({ url: '/pages/profile/coupon' })
+    return uni.navigateTo({ url: '/pages/order/list?tab=all' })
   }
   if (m.type === 'notice') {
     return uni.navigateTo({ url: '/pages/post/detail?id=' + (m.postId || 'o2') })
@@ -92,8 +114,8 @@ function openChat(m) {
   gap: 10rpx;
 }
 .e-icon {
-  width: 92rpx;
-  height: 92rpx;
+  width: 84rpx;
+  height: 84rpx;
   border-radius: 28rpx;
   display: flex;
   align-items: center;
@@ -101,7 +123,7 @@ function openChat(m) {
   position: relative;
 }
 .e-emoji {
-  font-size: 44rpx;
+  font-size: 40rpx;
 }
 .e-badge {
   position: absolute;
@@ -120,8 +142,9 @@ function openChat(m) {
   border: 3rpx solid #fff;
 }
 .e-name {
-  font-size: 21rpx;
+  font-size: 19rpx;
   color: #3d4a45;
+  white-space: nowrap;
 }
 .list {
   background: #fff;

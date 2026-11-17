@@ -1,7 +1,7 @@
 <template>
   <view class="pc" :class="'mode-' + mode" @tap="$emit('tap', product)">
     <view class="thumb-wrap">
-      <prod-img :src="product.coverUrl" :emoji="product.emoji" :bg="product.bg" :h="mode === 'grid' ? 220 : 176" :radius="mode === 'grid' ? '22rpx' : '18rpx'" />
+      <prod-img :src="product.coverUrl" :emoji="product.emoji" :bg="product.bg" :h="mode === 'grid' ? 232 : 176" :radius="mode === 'grid' ? '20rpx' : '16rpx'" />
       <view v-if="product.tags && product.tags.length" class="badge">{{ product.tags[0] }}</view>
     </view>
 
@@ -36,8 +36,8 @@ defineEmits(['tap', 'add'])
 }
 .pc.mode-grid {
   width: 100%;
-  padding: 14rpx;
-  box-shadow: 0 8rpx 26rpx rgba(22, 60, 45, 0.05);
+  padding: 12rpx;
+  box-shadow: 0 10rpx 28rpx rgba(22, 60, 45, 0.07);
 }
 .pc.mode-row {
   display: flex;
@@ -59,12 +59,13 @@ defineEmits(['tap', 'add'])
   position: absolute;
   left: 10rpx;
   top: 10rpx;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   color: #0aa863;
   font-size: 19rpx;
-  padding: 4rpx 10rpx;
-  border-radius: 8rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
   font-weight: 600;
+  box-shadow: 0 4rpx 12rpx rgba(10, 60, 40, 0.12);
 }
 .info {
   display: flex;

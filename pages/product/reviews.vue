@@ -4,11 +4,11 @@
     <scroll-view scroll-y class="body no-scrollbar">
       <view class="card summary">
         <view class="s-left">
-          <text class="s-score">4.9</text>
+          <text class="s-score">{{ rating.avg || '—' }}</text>
           <view class="stars">
-            <text v-for="i in 5" :key="i" class="star">★</text>
+            <text v-for="i in 5" :key="i" class="star" :class="{ dim: i > Math.round(rating.avg) }">★</text>
           </view>
-          <text class="s-count">共 1286 条评价</text>
+          <text class="s-count">共 {{ rating.count }} 条评价</text>
         </view>
         <view class="s-right">
           <view v-for="b in bars" :key="b.label" class="bar-row">
@@ -23,19 +23,26 @@
 
       <scroll-view scroll-x class="tags no-scrollbar">
         <view class="tags-inner">
-          <view v-for="t in tagList" :key="t" class="tag-item" :class="{ on: activeTag === t }" @tap="activeTag = t">
-            {{ t }}
+          <view
+            v-for="t in tagList"
+            :key="t.key"
+            class="tag-item"
+            :class="{ on: activeTag === t.key }"
+            @tap="activeTag = t.key"
+          >
+            {{ t.label }}
           </view>
         </view>
       </scroll-view>
 
+      <view v-if="!reviews.length" class="r-empty">这个标签下还没有评价</view>
       <view class="list">
         <view v-for="r in reviews" :key="r.id" class="review card">
           <view class="r-top">
             <view class="r-avatar">{{ r.avatar }}</view>
             <view class="flex1">
               <view class="row">
-                <text class="r-user">{{ r.user }}</text>
+                <text class="r-user">{{ r.anonymous ? '匿名用户' : r.user }}</text>
                 <view class="r-level">Lv.{{ r.level }}</view>
               </view>
               <view class="stars small">
@@ -45,10 +52,13 @@
             <text class="r-time">{{ r.time }}</text>
           </view>
           <text class="r-text">{{ r.text }}</text>
-          <view class="r-imgs">
-            <view v-for="(e, i) in r.imgs" :key="i" class="r-img" :style="{ background: r.bg }">
+          <view v-if="r.imgs && r.imgs.length" class="r-imgs">
+            <view v-for="(e, i) in r.imgs" :key="i" class="r-img">
               <text class="r-emoji">{{ e }}</text>
             </view>
+          </view>
+          <view v-if="r.tags && r.tags.length" class="r-tags">
+            <text v-for="t in r.tags" :key="t" class="r-tag">{{ t }}</text>
           </view>
           <view class="r-foot">
             <text class="r-spec">{{ r.spec }}</text>
@@ -66,35 +76,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { ratingOfProduct, reviewsOfProduct } from '@/store/index.js'
 import { toast } from '@/common/utils.js'
 
-const bars = [
-  { label: '新鲜度', pct: 99 },
-  { label: '包装', pct: 96 },
-  { label: '配送速度', pct: 94 }
-]
+const pid = ref('')
+onLoad((q) => {
+  pid.value = (q && q.id) || 'p1'
+})
 
-const tagList = ['全部(1286)', '新鲜(1203)', '包装好(862)', '有图(415)', '次日达(678)']
-const activeTag = ref('全部(1286)')
+const allReviews = computed(() => reviewsOfProduct(pid.value))
+const rating = computed(() => ratingOfProduct(pid.value))
 
-const reviews = ref([
-  {
-    id: 'r1', user: '阿杏', avatar: '👩', level: 3, stars: 5, time: '11-10',
-    text: '第三次买了，叶子还是很嫩，晚上炒了一盘，孩子说比菜市场的香。包装里有冰袋，到的时候还是凉的。',
-    imgs: ['🥬', '🍲'], bg: 'linear-gradient(150deg,#e9f9ef,#c9efd9)', spec: '300g／袋', likes: 42
-  },
-  {
-    id: 'r2', user: '小城故事', avatar: '🧑‍💼', level: 2, stars: 5, time: '11-08',
-    text: '顺丰次日到，很新鲜。唯一小建议：袋子可以少用一点。',
-    imgs: ['🥬'], bg: 'linear-gradient(150deg,#eaf9ef,#cdefd8)', spec: '300g／袋', likes: 18
-  },
-  {
-    id: 'r3', user: '种菜的小周', avatar: '🧑', level: 5, stars: 4, time: '11-06',
-    text: '味道不错，就是这次的菜有点小，可能季节原因。客服补了两把，态度很好。',
-    imgs: [], bg: '', spec: '300g／袋', likes: 9
+/** 三项细分：有评分的按评分算，老数据没评分就用星级兜底 */
+const bars = computed(() => {
+  const pick = (k) => {
+    const vs = allReviews.value.map((r) => (r.scores && r.scores[k]) || r.stars).filter(Boolean)
+    if (!vs.length) return 100
+    return Math.round((vs.reduce((a, b) => a + b, 0) / vs.length / 5) * 100)
   }
-])
+  return [
+    { label: '新鲜度', pct: pick('fresh') },
+    { label: '包装', pct: pick('pack') },
+    { label: '配送速度', pct: pick('deliver') }
+  ]
+})
+
+const activeTag = ref('')
+
+const tagList = computed(() => {
+  const counts = {}
+  allReviews.value.forEach((r) => (r.tags || []).forEach((t) => {
+    counts[t] = (counts[t] || 0) + 1
+  }))
+  const out = [{ key: '', label: '全部(' + allReviews.value.length + ')' }]
+  Object.keys(counts).forEach((t) => out.push({ key: t, label: t + '(' + counts[t] + ')' }))
+  return out
+})
+
+const reviews = computed(() => {
+  if (!activeTag.value) return allReviews.value
+  return allReviews.value.filter((r) => (r.tags || []).indexOf(activeTag.value) > -1)
+})
 </script>
 
 <style scoped>
@@ -204,6 +228,25 @@ const reviews = ref([
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+}
+.r-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+.r-tag {
+  font-size: 18rpx;
+  color: #06a96a;
+  background: #e9faf2;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+.r-empty {
+  font-size: 21rpx;
+  color: #b3bfba;
+  text-align: center;
+  padding: 40rpx 0;
 }
 .review {
   padding: 24rpx;

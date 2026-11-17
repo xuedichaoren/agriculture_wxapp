@@ -10,6 +10,8 @@
 
     <!-- 头图 -->
     <view class="hero">
+      <image class="hero-img" src="/static/images/farm/hero.jpg" mode="aspectFill" />
+      <view class="hero-shade" />
       <view class="hero-deco" />
       <text class="hero-kicker">湘农汇 · 认养计划</text>
       <text class="hero-title">认养一块地</text>
@@ -199,6 +201,30 @@ function toMine() {
   background: linear-gradient(135deg, #123b2c 0%, #1d5c45 58%, #26835f 100%);
   position: relative;
   overflow: hidden;
+}
+.hero-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero-shade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(120deg, rgba(8, 34, 24, 0.9) 0%, rgba(8, 34, 24, 0.68) 55%, rgba(8, 34, 24, 0.32) 100%);
+}
+.hero-kicker,
+.hero-title,
+.hero-sub,
+.hero-stats {
+  position: relative;
+  z-index: 2;
 }
 .hero-deco {
   position: absolute;
